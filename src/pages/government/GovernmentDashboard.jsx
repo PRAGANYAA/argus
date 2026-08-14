@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TrendingUp, Award, DollarSign, ShieldAlert, BarChart3, CheckCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import JusticeClockMap from '../../components/JusticeClockMap';
 
 const prisonOccupancyData = [
   { name: 'Central Jail', occupancy: 850, capacity: 1000 },
@@ -60,6 +61,9 @@ const GovernmentDashboard = () => {
           {toastMessage}
         </div>
       )}
+
+      {/* Headline Feature: National Justice Clock Compliance Map */}
+      <JusticeClockMap />
 
       {/* Stats Cards */}
       <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
