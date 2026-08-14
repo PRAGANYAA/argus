@@ -1,27 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, ShieldAlert, CheckCircle, AlertTriangle, ArrowRight, Activity, MapPin, Eye } from 'lucide-react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const stateData = [
-  { id: 'DEL', name: 'Delhi NCR', code: 'DL', compliance: 58, status: 'Critical Surge', color: 'var(--danger-color)', lightColor: 'var(--danger-light)', inmates: 18900, capacity: 12000, undertrialsPct: 78, pendingBails: 4120, lat: '28.61', lng: '77.20', cx: 210, cy: 150 },
-  { id: 'MAH', name: 'Maharashtra', code: 'MH', compliance: 92, status: 'Exemplary', color: 'var(--success-color)', lightColor: 'var(--success-light)', inmates: 14200, capacity: 16000, undertrialsPct: 42, pendingBails: 890, lat: '19.75', lng: '75.71', cx: 170, cy: 290 },
-  { id: 'UP', name: 'Uttar Pradesh', code: 'UP', compliance: 46, status: 'Critical Surge', color: 'var(--danger-color)', lightColor: 'var(--danger-light)', inmates: 27500, capacity: 18000, undertrialsPct: 84, pendingBails: 6850, lat: '26.84', lng: '80.94', cx: 270, cy: 170 },
-  { id: 'TN', name: 'Tamil Nadu', code: 'TN', compliance: 88, status: 'Compliant', color: 'var(--success-color)', lightColor: 'var(--success-light)', inmates: 11400, capacity: 13500, undertrialsPct: 39, pendingBails: 620, lat: '11.12', lng: '78.65', cx: 210, cy: 420 },
-  { id: 'KAR', name: 'Karnataka', code: 'KA', compliance: 76, status: 'Moderate Review', color: 'var(--warning-color)', lightColor: 'var(--warning-light)', inmates: 9800, capacity: 11000, undertrialsPct: 56, pendingBails: 1450, lat: '15.31', lng: '75.71', cx: 180, cy: 370 },
-  { id: 'GUJ', name: 'Gujarat', code: 'GJ', compliance: 82, status: 'Compliant', color: 'var(--success-color)', lightColor: 'var(--success-light)', inmates: 8900, capacity: 10500, undertrialsPct: 48, pendingBails: 980, lat: '22.25', lng: '71.19', cx: 120, cy: 230 },
-  { id: 'WB', name: 'West Bengal', code: 'WB', compliance: 64, status: 'Moderate Review', color: 'var(--warning-color)', lightColor: 'var(--warning-light)', inmates: 12100, capacity: 13000, undertrialsPct: 62, pendingBails: 2310, lat: '22.98', lng: '87.85', cx: 360, cy: 240 },
-  { id: 'KER', name: 'Kerala', code: 'KL', compliance: 95, status: 'Exemplary', color: 'var(--success-color)', lightColor: 'var(--success-light)', inmates: 4200, capacity: 5500, undertrialsPct: 29, pendingBails: 310, lat: '10.85', lng: '76.27', cx: 175, cy: 450 },
-  { id: 'RAJ', name: 'Rajasthan', code: 'RJ', compliance: 71, status: 'Moderate Review', color: 'var(--warning-color)', lightColor: 'var(--warning-light)', inmates: 10500, capacity: 12000, undertrialsPct: 59, pendingBails: 1890, lat: '27.02', lng: '74.21', cx: 150, cy: 170 },
-  { id: 'BIH', name: 'Bihar', code: 'BR', compliance: 52, status: 'Critical Surge', color: 'var(--danger-color)', lightColor: 'var(--danger-light)', inmates: 21300, capacity: 15000, undertrialsPct: 81, pendingBails: 5410, lat: '25.09', lng: '85.31', cx: 320, cy: 200 },
+  { id: 'DEL', name: 'Delhi NCR', code: 'DL', compliance: 58, status: 'Critical Surge', color: '#cc786e', lightColor: '#f5dcd9', inmates: 18900, capacity: 12000, undertrialsPct: 78, pendingBails: 4120, lat: 28.6139, lng: 77.2090 },
+  { id: 'MAH', name: 'Maharashtra', code: 'MH', compliance: 92, status: 'Exemplary', color: '#8c9e78', lightColor: '#e6edd8', inmates: 14200, capacity: 16000, undertrialsPct: 42, pendingBails: 890, lat: 19.7515, lng: 75.7139 },
+  { id: 'UP', name: 'Uttar Pradesh', code: 'UP', compliance: 46, status: 'Critical Surge', color: '#cc786e', lightColor: '#f5dcd9', inmates: 27500, capacity: 18000, undertrialsPct: 84, pendingBails: 6850, lat: 26.8467, lng: 80.9462 },
+  { id: 'TN', name: 'Tamil Nadu', code: 'TN', compliance: 88, status: 'Compliant', color: '#8c9e78', lightColor: '#e6edd8', inmates: 11400, capacity: 13500, undertrialsPct: 39, pendingBails: 620, lat: 11.1271, lng: 78.6569 },
+  { id: 'KAR', name: 'Karnataka', code: 'KA', compliance: 76, status: 'Moderate Review', color: '#d99e52', lightColor: '#fae9d1', inmates: 9800, capacity: 11000, undertrialsPct: 56, pendingBails: 1450, lat: 15.3173, lng: 75.7139 },
+  { id: 'GUJ', name: 'Gujarat', code: 'GJ', compliance: 82, status: 'Compliant', color: '#8c9e78', lightColor: '#e6edd8', inmates: 8900, capacity: 10500, undertrialsPct: 48, pendingBails: 980, lat: 22.2587, lng: 71.1924 },
+  { id: 'WB', name: 'West Bengal', code: 'WB', compliance: 64, status: 'Moderate Review', color: '#d99e52', lightColor: '#fae9d1', inmates: 12100, capacity: 13000, undertrialsPct: 62, pendingBails: 2310, lat: 22.9868, lng: 87.8550 },
+  { id: 'KER', name: 'Kerala', code: 'KL', compliance: 95, status: 'Exemplary', color: '#8c9e78', lightColor: '#e6edd8', inmates: 4200, capacity: 5500, undertrialsPct: 29, pendingBails: 310, lat: 10.8505, lng: 76.2711 },
+  { id: 'RAJ', name: 'Rajasthan', code: 'RJ', compliance: 71, status: 'Moderate Review', color: '#d99e52', lightColor: '#fae9d1', inmates: 10500, capacity: 12000, undertrialsPct: 59, pendingBails: 1890, lat: 27.0238, lng: 74.2179 },
+  { id: 'BIH', name: 'Bihar', code: 'BR', compliance: 52, status: 'Critical Surge', color: '#cc786e', lightColor: '#f5dcd9', inmates: 21300, capacity: 15000, undertrialsPct: 81, pendingBails: 5410, lat: 25.0961, lng: 85.3131 },
+  { id: 'TEL', name: 'Telangana', code: 'TS', compliance: 85, status: 'Compliant', color: '#8c9e78', lightColor: '#e6edd8', inmates: 7600, capacity: 9000, undertrialsPct: 44, pendingBails: 720, lat: 18.1124, lng: 79.0193 },
+  { id: 'MP', name: 'Madhya Pradesh', code: 'MP', compliance: 68, status: 'Moderate Review', color: '#d99e52', lightColor: '#fae9d1', inmates: 13400, capacity: 14000, undertrialsPct: 65, pendingBails: 2890, lat: 22.9734, lng: 78.6569 }
 ];
 
 const JusticeClockMap = () => {
   const navigate = useNavigate();
+  const mapContainerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const markersRef = useRef({});
+
   const [selectedState, setSelectedState] = useState(stateData[0]);
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [clockTime, setClockTime] = useState(new Date());
 
-  // Real-time ticking clock effect for the Justice Clock ticker
+  // Real-time ticking clock effect
   useEffect(() => {
     const timer = setInterval(() => {
       setClockTime(new Date());
@@ -29,12 +37,122 @@ const JusticeClockMap = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const filteredStates = stateData.filter(s => {
-    if (filterStatus === 'CRITICAL') return s.compliance < 60;
-    if (filterStatus === 'MODERATE') return s.compliance >= 60 && s.compliance < 80;
-    if (filterStatus === 'COMPLIANT') return s.compliance >= 80;
-    return true;
-  });
+  // Initialize Real Leaflet Map
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+    if (mapInstanceRef.current) return; // already initialized
+
+    // Create Leaflet Map Instance centered over India
+    const map = L.map(mapContainerRef.current, {
+      center: [21.5, 79.5],
+      zoom: 4.8,
+      zoomControl: true,
+      scrollWheelZoom: false,
+    });
+
+    mapInstanceRef.current = map;
+
+    // Add OpenStreetMap Tile Layer with warm styled tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap | ARGUS GIS',
+      maxZoom: 18,
+    }).addTo(map);
+
+    // Invalidate map size after initial paint for crisp canvas rendering
+    setTimeout(() => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    }, 200);
+
+    // Clean up on unmount
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update Leaflet Markers when filterStatus or selectedState changes
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    // Clear existing markers
+    Object.values(markersRef.current).forEach(marker => map.removeLayer(marker));
+    markersRef.current = {};
+
+    stateData.forEach(st => {
+      // Filter logic
+      if (filterStatus === 'CRITICAL' && st.compliance >= 60) return;
+      if (filterStatus === 'MODERATE' && (st.compliance < 60 || st.compliance >= 80)) return;
+      if (filterStatus === 'COMPLIANT' && st.compliance < 80) return;
+
+      const isSelected = selectedState.id === st.id;
+
+      // Custom Pulsing DivIcon
+      const customIcon = L.divIcon({
+        className: 'custom-leaflet-marker',
+        html: `
+          <div style="position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+            <div style="
+              position: absolute;
+              width: ${isSelected ? '38px' : '26px'};
+              height: ${isSelected ? '38px' : '26px'};
+              border-radius: 50%;
+              background-color: ${st.color};
+              opacity: 0.35;
+              animation: pulse 1.5s infinite ease-in-out;
+            "></div>
+            <div style="
+              position: relative;
+              width: ${isSelected ? '24px' : '18px'};
+              height: ${isSelected ? '24px' : '18px'};
+              border-radius: 50%;
+              background-color: ${st.color};
+              border: 2px solid white;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-size: 8px;
+              font-weight: 800;
+              font-family: var(--font-family);
+            ">
+              ${st.code}
+            </div>
+          </div>
+        `,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+      });
+
+      const marker = L.marker([st.lat, st.lng], { icon: customIcon }).addTo(map);
+
+      // Popup HTML content
+      const popupContent = `
+        <div style="font-family: var(--font-family); padding: 4px; color: #3b3228;">
+          <strong style="font-size: 13px; color: ${st.color}; display: block;">${st.name} (${st.code})</strong>
+          <div style="font-size: 10px; margin-top: 4px; font-weight: 600;">
+            Compliance Score: <span style="color: ${st.color}; font-weight: 800;">${st.compliance}% (${st.status})</span><br/>
+            Inmate Census: <strong>${st.inmates.toLocaleString()}</strong> / ${st.capacity.toLocaleString()}<br/>
+            Undertrial Ratio: <strong>${st.undertrialsPct}%</strong>
+          </div>
+        </div>
+      `;
+
+      marker.bindPopup(popupContent, { offset: [0, -10] });
+
+      marker.on('click', () => {
+        setSelectedState(st);
+      });
+
+      markersRef.current[st.id] = marker;
+    });
+
+  }, [filterStatus, selectedState]);
 
   return (
     <div className="card w-full" style={{ border: '1px solid var(--primary-color)' }}>
@@ -47,7 +165,7 @@ const JusticeClockMap = () => {
           <div>
             <div className="flex items-center gap-xs">
               <h2 className="card-title text-primary" style={{ margin: 0, fontFamily: 'var(--font-family-serif)', fontSize: '1.2rem' }}>NATIONAL JUSTICE CLOCK</h2>
-              <span className="badge badge-danger text-xxs animate-pulse" style={{ padding: '2px 8px', fontSize: '8px' }}>LIVE COMPLIANCE FEED</span>
+              <span className="badge badge-danger text-xxs animate-pulse" style={{ padding: '2px 8px', fontSize: '8px' }}>REAL LEAFLET GIS FEED</span>
             </div>
             <p className="text-xxs text-muted mt-xxs">Real-time state & district judicial compliance monitoring across Indian prisons & courts.</p>
           </div>
@@ -96,115 +214,35 @@ const JusticeClockMap = () => {
         </div>
       </div>
 
-      {/* Main Grid: Interactive Map SVG Left (60%) & State Detail Inspector Right (40%) */}
+      {/* Main Grid: Real Leaflet Map Container Left (60%) & State Detail Inspector Right (40%) */}
       <div className="card-body grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px', padding: '24px' }}>
         
-        {/* Left Column: Interactive Vector Choropleth SVG Map of India */}
-        <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--border-radius-md)', padding: '20px', border: '1px solid var(--border-color)', position: 'relative', minHeight: '380px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        {/* Left Column: Real Leaflet Map Render Canvas */}
+        <div style={{ backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--border-radius-md)', padding: '12px', border: '1px solid var(--border-color)', position: 'relative', height: '420px', display: 'flex', flexDirection: 'column', boxShadow: 'inset 0 0 10px rgba(0,0,0,0.03)' }}>
           
-          <div style={{ position: 'absolute', top: '12px', left: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <Activity size={14} className="text-primary" />
-            <span className="text-xxs font-bold text-muted uppercase tracking-wider">Choropleth Heatmap — Click State node to inspect</span>
+          <div style={{ padding: '0 4px 8px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 10 }}>
+            <div className="flex items-center gap-xs">
+              <MapPin size={14} className="text-primary" />
+              <span className="text-xxs font-bold text-muted uppercase tracking-wider">OpenStreetMap GIS Choropleth Layer</span>
+            </div>
+            <span className="text-xxs text-primary font-bold">Interactive Zoom & Pan Enabled</span>
           </div>
 
-          {/* SVG Map Container */}
-          <div style={{ width: '100%', maxWidth: '440px', height: '340px', position: 'relative', marginTop: '20px' }}>
-            <svg viewBox="0 0 440 500" style={{ width: '100%', height: '100%' }}>
-              
-              {/* Stylized India Land Silhouette Background Outline */}
-              <path 
-                d="M 180,60 L 220,50 L 260,70 L 280,100 L 320,120 L 360,170 L 390,210 L 380,250 L 340,280 L 300,310 L 260,350 L 230,420 L 210,480 L 170,430 L 160,380 L 120,320 L 90,260 L 80,210 L 110,170 L 130,130 L 160,90 Z" 
-                fill="#e6ded3" 
-                stroke="var(--border-color)" 
-                strokeWidth="2" 
-                strokeDasharray="4"
-              />
-
-              {/* Connecting Mesh Lines between Regional Legal Authorities */}
-              {stateData.map((s, idx) => {
-                if (idx === stateData.length - 1) return null;
-                const next = stateData[idx + 1];
-                return (
-                  <line 
-                    key={`line-${idx}`}
-                    x1={s.cx} y1={s.cy}
-                    x2={next.cx} y2={next.cy}
-                    stroke="var(--border-color)"
-                    strokeWidth="1"
-                    opacity="0.4"
-                  />
-                );
-              })}
-
-              {/* State Interactive Nodes */}
-              {filteredStates.map((st) => {
-                const isSelected = selectedState.id === st.id;
-                return (
-                  <g key={st.id} onClick={() => setSelectedState(st)} style={{ cursor: 'pointer' }}>
-                    
-                    {/* Outer Pulsing Ring for Critical / Moderate states */}
-                    <circle 
-                      cx={st.cx} cy={st.cy} r={isSelected ? 26 : 18}
-                      fill={st.color}
-                      opacity={isSelected ? "0.35" : "0.2"}
-                      className="animate-ping"
-                      style={{ animationDuration: st.compliance < 60 ? '1.5s' : '3s' }}
-                    />
-
-                    {/* Outer Ring */}
-                    <circle 
-                      cx={st.cx} cy={st.cy} r={isSelected ? 20 : 14}
-                      fill={st.lightColor}
-                      stroke={st.color}
-                      strokeWidth={isSelected ? "3" : "2"}
-                      style={{ transition: 'all 0.3s' }}
-                    />
-
-                    {/* Inner Node Circle */}
-                    <circle 
-                      cx={st.cx} cy={st.cy} r={isSelected ? 10 : 7}
-                      fill={st.color}
-                    />
-
-                    {/* State Code Label */}
-                    <text 
-                      x={st.cx} y={st.cy + 4} 
-                      fill="white" 
-                      fontSize={isSelected ? "9px" : "7px"} 
-                      fontWeight="bold" 
-                      textAnchor="middle"
-                      pointerEvents="none"
-                    >
-                      {st.code}
-                    </text>
-
-                    {/* State Name Callout Text below node */}
-                    <text 
-                      x={st.cx} y={st.cy + (isSelected ? 30 : 24)} 
-                      fill="var(--text-primary)" 
-                      fontSize="9px" 
-                      fontWeight={isSelected ? "bold" : "600"}
-                      textAnchor="middle"
-                      pointerEvents="none"
-                    >
-                      {st.name} ({st.compliance}%)
-                    </text>
-
-                  </g>
-                );
-              })}
-            </svg>
-          </div>
+          {/* Leaflet DOM Node */}
+          <div 
+            ref={mapContainerRef} 
+            style={{ width: '100%', height: '100%', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', zIndex: 1, border: '1px solid var(--border-color)' }} 
+          />
 
           {/* Map Legend */}
-          <div className="flex gap-md justify-center items-center mt-sm border-t pt-xs w-full" style={{ borderTopColor: 'var(--border-color)' }}>
+          <div className="flex gap-md justify-center items-center mt-xs pt-xs w-full">
             <div className="flex items-center gap-xs text-xxs text-secondary">
               <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--danger-color)', display: 'inline-block' }}></span>
-              <span>Red: Critical Risk (&lt;60%)</span>
+              <span>Red: Critical (&lt;60%)</span>
             </div>
             <div className="flex items-center gap-xs text-xxs text-secondary">
               <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--warning-color)', display: 'inline-block' }}></span>
-              <span>Yellow: Moderate Review (60-80%)</span>
+              <span>Yellow: Review (60-80%)</span>
             </div>
             <div className="flex items-center gap-xs text-xxs text-secondary">
               <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: 'var(--success-color)', display: 'inline-block' }}></span>
@@ -218,10 +256,10 @@ const JusticeClockMap = () => {
         <div className="card p-md flex flex-col justify-between" style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)' }}>
           
           <div>
-            <div className="flex justify-between items-start border-b pb-sm mb-sm" style={{ borderBottomColor: 'var(--border-color)' }}>
+            <div className="flex justify-between items-center border-b pb-sm mb-sm" style={{ borderBottomColor: 'var(--border-color)' }}>
               <div>
-                <span className="text-xxs text-muted font-bold uppercase tracking-wider block">Selected Jurisdiction</span>
-                <h3 style={{ fontFamily: 'var(--font-family-serif)', fontSize: '1.4rem', color: 'var(--text-primary)', margin: '2px 0 0 0' }}>
+                <span className="text-xxs text-muted font-bold uppercase tracking-wider block">Selected GIS Jurisdiction</span>
+                <h3 style={{ fontFamily: 'var(--font-family-serif)', fontSize: '1.35rem', color: 'var(--text-primary)', margin: '2px 0 0 0' }}>
                   {selectedState.name} ({selectedState.code})
                 </h3>
               </div>
@@ -231,7 +269,12 @@ const JusticeClockMap = () => {
                   backgroundColor: selectedState.lightColor, 
                   color: selectedState.color, 
                   border: `1px solid ${selectedState.color}`,
-                  fontSize: '9px', padding: '4px 10px'
+                  fontSize: '9px',
+                  padding: '4px 10px',
+                  whiteSpace: 'nowrap',
+                  borderRadius: '999px',
+                  display: 'inline-flex',
+                  alignItems: 'center'
                 }}
               >
                 {selectedState.status.toUpperCase()}
@@ -239,51 +282,51 @@ const JusticeClockMap = () => {
             </div>
 
             {/* Metric Scorecard */}
-            <div className="grid grid-cols-2 gap-sm my-md">
+            <div className="grid grid-cols-2" style={{ gap: '16px', marginTop: '16px', marginBottom: '20px' }}>
               
-              <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)' }}>
-                <span className="text-xxs text-muted uppercase font-bold block">Compliance Score</span>
-                <span className="font-extrabold text-xl block mt-xs" style={{ color: selectedState.color }}>
+              <div className="flex flex-col justify-between" style={{ backgroundColor: 'var(--bg-secondary)', padding: '14px 16px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', minHeight: '90px' }}>
+                <span className="text-xxs text-muted uppercase font-bold block" style={{ marginBottom: '4px' }}>Compliance Score</span>
+                <span className="font-extrabold text-xl block" style={{ color: selectedState.color, lineHeight: '1.2' }}>
                   {selectedState.compliance}/100
                 </span>
-                <span className="text-xxs text-secondary block mt-xxs">Automated Audit Index</span>
+                <span className="text-xxs text-secondary block" style={{ marginTop: '4px' }}>Automated Audit Index</span>
               </div>
 
-              <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)' }}>
-                <span className="text-xxs text-muted uppercase font-bold block">Inmate Population</span>
-                <span className="font-extrabold text-xl text-primary block mt-xs">
+              <div className="flex flex-col justify-between" style={{ backgroundColor: 'var(--bg-secondary)', padding: '14px 16px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', minHeight: '90px' }}>
+                <span className="text-xxs text-muted uppercase font-bold block" style={{ marginBottom: '4px' }}>Inmate Population</span>
+                <span className="font-extrabold text-xl text-primary block" style={{ lineHeight: '1.2' }}>
                   {selectedState.inmates.toLocaleString()}
                 </span>
-                <span className="text-xxs text-secondary block mt-xxs">Capacity: {selectedState.capacity.toLocaleString()}</span>
+                <span className="text-xxs text-secondary block" style={{ marginTop: '4px' }}>Capacity: {selectedState.capacity.toLocaleString()}</span>
               </div>
 
-              <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)' }}>
-                <span className="text-xxs text-muted uppercase font-bold block">Undertrial Ratio</span>
-                <span className="font-extrabold text-lg text-primary block mt-xs">
+              <div className="flex flex-col justify-between" style={{ backgroundColor: 'var(--bg-secondary)', padding: '14px 16px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', minHeight: '90px' }}>
+                <span className="text-xxs text-muted uppercase font-bold block" style={{ marginBottom: '4px' }}>Undertrial Ratio</span>
+                <span className="font-extrabold text-lg text-primary block" style={{ lineHeight: '1.2' }}>
                   {selectedState.undertrialsPct}%
                 </span>
-                <span className="text-xxs text-secondary block mt-xxs">Awaiting Charge Clearance</span>
+                <span className="text-xxs text-secondary block" style={{ marginTop: '4px' }}>Awaiting Charge Clearance</span>
               </div>
 
-              <div style={{ backgroundColor: 'var(--bg-secondary)', padding: '12px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)' }}>
-                <span className="text-xxs text-muted uppercase font-bold block">Pending Bail Pleas</span>
-                <span className="font-extrabold text-lg text-danger block mt-xs" style={{ color: 'var(--danger-color)' }}>
+              <div className="flex flex-col justify-between" style={{ backgroundColor: 'var(--bg-secondary)', padding: '14px 16px', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', minHeight: '90px' }}>
+                <span className="text-xxs text-muted uppercase font-bold block" style={{ marginBottom: '4px' }}>Pending Bail Pleas</span>
+                <span className="font-extrabold text-lg text-danger block" style={{ color: 'var(--danger-color)', lineHeight: '1.2' }}>
                   {selectedState.pendingBails.toLocaleString()}
                 </span>
-                <span className="text-xxs text-secondary block mt-xxs">Queued in District Courts</span>
+                <span className="text-xxs text-secondary block" style={{ marginTop: '4px' }}>Queued in District Courts</span>
               </div>
 
             </div>
 
             {/* Diagnostic Commentary */}
-            <div style={{ padding: '12px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--border-radius-sm)', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-              <strong className="block text-primary text-xs mb-xxs">Judicial Audit Diagnosis:</strong>
+            <div style={{ padding: '14px 16px', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--border-radius-sm)', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: '1.5', border: '1px solid var(--border-color)', marginTop: '20px', marginBottom: '20px' }}>
+              <strong className="block text-primary text-xs mb-xxs" style={{ marginBottom: '6px' }}>Judicial Audit Diagnosis:</strong>
               {selectedState.compliance < 60 ? (
-                <span>⚠️ Critical overcrowding & undertrial delay flagged in {selectedState.name}. Immediate release recommendation dispatch and DLSA legal aid assignment recommended under Sec 436A CrPC.</span>
+                <span className="block">⚠️ Critical overcrowding & undertrial delay flagged in {selectedState.name}. Immediate release recommendation dispatch and DLSA legal aid assignment recommended under Sec 436A CrPC.</span>
               ) : selectedState.compliance < 80 ? (
-                <span>⚡ Moderate compliance logged. Facilities operational with manageable caseload. Continuous monitoring active.</span>
+                <span className="block">⚡ Moderate compliance logged. Facilities operational with manageable caseload. Continuous monitoring active.</span>
               ) : (
-                <span>✔ Exemplary judicial compliance! Undertrial release ratio exceeds target benchmarks with active vocational labor credits.</span>
+                <span className="block">✔ Exemplary judicial compliance! Undertrial release ratio exceeds target benchmarks with active vocational labor credits.</span>
               )}
             </div>
           </div>

@@ -310,17 +310,33 @@ th.p-sm, td.p-sm {
 .p-sm { padding: var(--gap-sm); }
 .p-md { padding: var(--gap-md); }
 .p-lg { padding: var(--gap-lg); }
+.block { display: block !important; }
+.inline-block { display: inline-block !important; }
+.inline { display: inline !important; }
+
+.mt-xxs { margin-top: 2px !important; }
+.mt-xs { margin-top: 6px !important; }
+.mb-xxs { margin-bottom: 2px !important; }
+.mb-xs { margin-bottom: 6px !important; }
+.mr-xs { margin-right: 6px !important; }
+.ml-xs { margin-left: 6px !important; }
+
 .w-full { width: 100%; }
 .h-full { height: 100%; }
 
 /* Badges */
 .badge {
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: 700;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  line-height: 1.2;
   box-shadow: var(--shadow-sm);
+  width: max-content;
 }
 .badge-success { background-color: var(--success-light); color: var(--success-color); }
 .badge-warning { background-color: var(--warning-light); color: var(--warning-color); }

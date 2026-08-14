@@ -24,6 +24,7 @@ import LawyerDashboard from './pages/lawyer/LawyerDashboard';
 import LawyerRequests from './pages/lawyer/LawyerRequests';
 import LawyerBilling from './pages/lawyer/LawyerBilling';
 import LawyerPetitions from './pages/lawyer/LawyerPetitions';
+import LawyerCaseHistory from './pages/lawyer/LawyerCaseHistory';
 
 // Government Portal Pages
 import GovernmentDashboard from './pages/government/GovernmentDashboard';
@@ -56,6 +57,7 @@ function App() {
           <Route path="dashboard" element={<LawyerDashboard />} />
           <Route path="requests" element={<LawyerRequests />} />
           <Route path="petitions" element={<LawyerPetitions />} />
+          <Route path="case-history" element={<LawyerCaseHistory />} />
           <Route path="billing" element={<LawyerBilling />} />
         </Route>
 

@@ -18,6 +18,11 @@ const Landing = () => {
   const [lawyerPasscode, setLawyerPasscode] = useState('');
   const [lawyerError, setLawyerError] = useState('');
 
+  // Jailer Auth states
+  const [showJailerModal, setShowJailerModal] = useState(false);
+  const [jailerPasscode, setJailerPasscode] = useState('');
+  const [jailerError, setJailerError] = useState('');
+
   const handleGovSubmit = (e) => {
     e.preventDefault();
     if (govPasscode === '1234') {
@@ -33,6 +38,15 @@ const Landing = () => {
       navigate('/lawyer');
     } else {
       setLawyerError('Invalid Security Passcode. Access Denied.');
+    }
+  };
+
+  const handleJailerSubmit = (e) => {
+    e.preventDefault();
+    if (jailerPasscode === '1234') {
+      navigate('/jailer');
+    } else {
+      setJailerError('Invalid Security Passcode. Access Denied.');
     }
   };
 
@@ -203,7 +217,7 @@ const Landing = () => {
 
         {/* Jailer Card */}
         <div 
-          onClick={() => navigate('/jailer')}
+          onClick={() => setShowJailerModal(true)}
           style={{ 
             backgroundColor: '#f7e8e5', 
             borderRadius: '20px', 
@@ -464,6 +478,63 @@ const Landing = () => {
                 </button>
                 <button type="submit" className="btn btn-primary w-full" style={{ borderRadius: 'var(--border-radius-sm)' }}>
                   Verify Attorney
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Jailer Auth Modal */}
+      {showJailerModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(59, 50, 40, 0.45)',
+          backdropFilter: 'blur(5px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="card p-lg" style={{ width: '400px', backgroundColor: 'var(--bg-card)', border: 'none', borderRadius: 'var(--border-radius-md)', boxShadow: 'var(--shadow-lg)' }}>
+            <div className="flex flex-col items-center text-center gap-sm mb-md">
+              <div style={{ padding: '12px', backgroundColor: 'var(--danger-light)', color: 'var(--danger-color)', borderRadius: '50%' }}>
+                <Lock size={24} />
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-family-serif)', fontSize: '1.4rem', color: 'var(--text-primary)', margin: 0 }}>
+                Prison Warden Verification
+              </h3>
+              <p className="text-xs text-secondary" style={{ lineHeight: '1.4' }}>
+                Access restricted to Authorized Prison Wardens & Officers.<br />
+                Please enter the Security Passcode.
+              </p>
+            </div>
+            
+            <form onSubmit={handleJailerSubmit} className="flex flex-col gap-md">
+              <div className="form-group" style={{ margin: 0 }}>
+                <input 
+                  type="password" 
+                  className="form-control" 
+                  placeholder="••••"
+                  value={jailerPasscode}
+                  onChange={(e) => { setJailerPasscode(e.target.value); setJailerError(''); }}
+                  style={{ textAlign: 'center', fontSize: '1.25rem', letterSpacing: '8px', padding: '12px' }}
+                  autoFocus
+                />
+                {jailerError && <span className="text-xs mt-xs block" style={{ color: 'var(--danger-color)', textAlign: 'center', fontWeight: '700' }}>{jailerError}</span>}
+              </div>
+
+              <p className="text-xs text-muted text-center" style={{ margin: 0 }}>
+                Hint: Enter test code <strong>1234</strong>
+              </p>
+              
+              <div className="flex gap-sm">
+                <button type="button" className="btn btn-outline w-full" onClick={() => { setShowJailerModal(false); setJailerPasscode(''); setJailerError(''); }} style={{ borderRadius: 'var(--border-radius-sm)' }}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary w-full" style={{ borderRadius: 'var(--border-radius-sm)', backgroundColor: 'var(--danger-color)', borderColor: 'var(--danger-color)' }}>
+                  Verify Commandant
                 </button>
               </div>
             </form>
