@@ -160,28 +160,6 @@ No digital-literacy requirement.
 
 ---
 
-# 🔐 Responsible AI
-
-ARGUS is **decision-support infrastructure**, not an AI judge.
-
-```text
-AI
- ↓
-Detect
- ↓
-Structure
- ↓
-Flag
- ↓
-Route
- ↓
-Human Review
-```
-
-It does not determine guilt, innocence, bail, or release.
-
----
-
 # 🌍 Impact
 
 ARGUS directly targets **SDG 16 — Peace, Justice & Strong Institutions** and **SDG 10 — Reduced Inequalities**.
