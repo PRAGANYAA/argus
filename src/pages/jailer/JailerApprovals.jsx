@@ -33,7 +33,7 @@ const JailerApprovals = () => {
       if (selectedIds.includes(p.id)) {
         return {
           ...p,
-          eligibilityStatus: `${p.eligibilityStatus} (Report Sent)`
+          eligibilityStatus: "Recommendation Sent"
         };
       }
       return p;

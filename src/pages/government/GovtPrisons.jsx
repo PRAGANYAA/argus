@@ -31,6 +31,13 @@ const GovtPrisons = () => {
   const [prisons, setPrisons] = useState(mockPrisonsList);
   const [selectedPrison, setSelectedPrison] = useState(mockPrisonsList[0]);
   const [activePieIndex, setActivePieIndex] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredPrisons = prisons.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.wardenName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Highly contrasting Pie Chart Data representing completely different prisoner distributions
   const getClassificationData = (prison) => {
@@ -167,18 +174,26 @@ const GovtPrisons = () => {
         
         {/* Left Card: Prisons List */}
         <div className="card">
-          <div className="card-header border-b" style={{ borderBottomColor: 'var(--border-color)', padding: '16px' }}>
-            <h3 className="card-title text-sm"><Building2 size={16} className="text-primary" /> Active Facilities</h3>
+          <div className="card-header border-b flex flex-col gap-xs items-start" style={{ borderBottomColor: 'var(--border-color)', padding: '16px' }}>
+            <h3 className="card-title text-sm"><Building2 size={16} className="text-primary" /> Active Facilities ({filteredPrisons.length})</h3>
+            <input 
+              type="text" 
+              className="form-control text-xs mt-xs" 
+              placeholder="Search by prison name or warden..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ padding: '6px 12px' }}
+            />
           </div>
           <div className="card-body p-0">
             <div className="flex flex-col">
-              {prisons.map((prison, idx) => (
+              {filteredPrisons.map((prison, idx) => (
                 <div 
                   key={prison.id}
                   onClick={() => setSelectedPrison(prison)}
                   style={{
                     padding: '16px',
-                    borderBottom: idx === prisons.length - 1 ? 'none' : '1px solid var(--border-color)',
+                    borderBottom: idx === filteredPrisons.length - 1 ? 'none' : '1px solid var(--border-color)',
                     cursor: 'pointer',
                     backgroundColor: selectedPrison.id === prison.id ? 'var(--primary-light)' : 'transparent',
                     transition: 'all 0.2s ease'
@@ -193,6 +208,9 @@ const GovtPrisons = () => {
                   <ChevronRight size={14} className="text-muted" />
                 </div>
               ))}
+              {filteredPrisons.length === 0 && (
+                <div className="p-md text-xs text-muted text-center">No matching facilities found.</div>
+              )}
             </div>
           </div>
         </div>
@@ -331,21 +349,21 @@ const GovtPrisons = () => {
 
             </div>
 
-            {/* Minimal Operational Status Check */}
+            {/* Dynamic Operational Status Check */}
             <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '10px' }} className="text-xxs">
-              <span className="text-muted font-bold uppercase block mb-xs font-semibold">Operations Log Logs</span>
+              <span className="text-muted font-bold uppercase block mb-xs font-semibold">Operations Status Log: {selectedPrison.name}</span>
               <div style={{ display: 'flex', gap: '15px', color: 'var(--text-secondary)' }}>
                 <span className="flex items-center gap-xs">
-                  <CheckCircle size={10} className="text-success" style={{ color: 'var(--success-color)' }} />
-                  Rehab logs verified
+                  <CheckCircle size={10} style={{ color: selectedPrison.releaseRate >= 70 ? 'var(--success-color)' : 'var(--warning-color)' }} />
+                  Rehab index: {selectedPrison.releaseRate}%
                 </span>
                 <span className="flex items-center gap-xs">
-                  <CheckCircle size={10} className="text-success" style={{ color: 'var(--success-color)' }} />
-                  DLSA audit signed
+                  <CheckCircle size={10} style={{ color: selectedPrison.staffCount >= 100 ? 'var(--success-color)' : 'var(--warning-color)' }} />
+                  Staffing: {selectedPrison.staffCount} officers
                 </span>
                 <span className="flex items-center gap-xs">
-                  <CheckCircle size={10} className="text-success" style={{ color: 'var(--success-color)' }} />
-                  Platform data synced
+                  <CheckCircle size={10} style={{ color: selectedPrison.incidentCount <= 15 ? 'var(--success-color)' : 'var(--danger-color)' }} />
+                  Incident rate: {selectedPrison.incidentCount} logs
                 </span>
               </div>
             </div>

@@ -5,6 +5,7 @@ import { Bell, Calendar, CheckCircle, AlertTriangle, ArrowRight, UserCheck, Phon
 const Notifications = () => {
   const [selectedNote, setSelectedNote] = useState(mockNotifications[0]);
   const [showAlertModal, setShowAlertModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   return (
     <div className="flex flex-col gap-md">
@@ -15,6 +16,13 @@ const Notifications = () => {
         </div>
         <button className="btn btn-primary" onClick={() => setShowAlertModal(true)}><Bell size={18}/> Manage Alerts</button>
       </div>
+
+      {toastMessage && (
+        <div className="toast-banner toast-success">
+          <CheckCircle size={18} />
+          {toastMessage}
+        </div>
+      )}
 
       {/* Split Grid Layout */}
       <div className="grid" style={{ gridTemplateColumns: '1.8fr 1.2fr', gap: '20px', alignItems: 'start' }}>
@@ -236,7 +244,7 @@ const Notifications = () => {
                 <button className="btn btn-outline w-full" onClick={() => setShowAlertModal(false)}>
                   Close
                 </button>
-                <button className="btn btn-primary w-full" onClick={() => { alert('Preferences saved!'); setShowAlertModal(false); }}>
+                <button className="btn btn-primary w-full" onClick={() => { setToastMessage('Notification preferences saved successfully!'); setShowAlertModal(false); setTimeout(() => setToastMessage(''), 4000); }}>
                   Save Preferences
                 </button>
               </div>

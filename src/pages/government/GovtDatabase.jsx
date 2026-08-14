@@ -129,7 +129,7 @@ const GovtDatabase = () => {
             <div>
               <span className="text-xxs text-muted uppercase font-bold tracking-wider block">Total Active Cells</span>
               <h2 className="h2 mt-xs" style={{ margin: 0 }}>{totalCells} Cells</h2>
-              <span className="text-xxs text-secondary block mt-xs">Ratio: {stats.spaceRatio}</span>
+              <span className="text-xxs text-secondary block mt-xs">Ratio: {cellsToInmateRatio} inmates/cell</span>
             </div>
             <div style={{ padding: '12px', backgroundColor: '#e2e6df', borderRadius: '50%', color: '#566e58', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Database size={20} />
@@ -141,10 +141,12 @@ const GovtDatabase = () => {
           <div className="card-body flex items-center justify-between" style={{ padding: '20px' }}>
             <div>
               <span className="text-xxs text-muted uppercase font-bold tracking-wider block">System Compliance</span>
-              <h2 className="h2 mt-xs" style={{ margin: 0, color: 'var(--success-color)' }}>{stats.complianceScore}% Score</h2>
-              <span className="text-xxs text-secondary block mt-xs">{stats.medicalRating}</span>
+              <h2 className="h2 mt-xs" style={{ margin: 0, color: complianceScore >= 90 ? 'var(--success-color)' : 'var(--warning-color)' }}>
+                {auditing ? animatedScore : complianceScore}% Score
+              </h2>
+              <span className="text-xxs text-secondary block mt-xs">{medicalCompliance}% Staff Rating</span>
             </div>
-            <div style={{ padding: '12px', backgroundColor: '#e6edd8', borderRadius: '50%', color: 'var(--success-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ padding: '12px', backgroundColor: complianceScore >= 90 ? '#e6edd8' : '#fae9d1', borderRadius: '50%', color: complianceScore >= 90 ? 'var(--success-color)' : 'var(--warning-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CheckCircle size={20} />
             </div>
           </div>
@@ -154,7 +156,7 @@ const GovtDatabase = () => {
           <div className="card-body flex items-center justify-between" style={{ padding: '20px' }}>
             <div>
               <span className="text-xxs text-muted uppercase font-bold tracking-wider block">Welfare Fund</span>
-              <h2 className="h2 mt-xs" style={{ margin: 0 }}>{stats.welfareBudget}</h2>
+              <h2 className="h2 mt-xs" style={{ margin: 0 }}>₹{totalBudgetLakhs} Lakhs</h2>
               <span className="text-xxs text-secondary block mt-xs">Disbursed for rehabilitation</span>
             </div>
             <div style={{ padding: '12px', backgroundColor: '#eae5ed', borderRadius: '50%', color: '#745680', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

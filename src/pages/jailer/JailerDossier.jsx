@@ -215,16 +215,26 @@ const JailerDossier = () => {
                 <span className="text-xxs text-muted uppercase font-bold block mb-xs">Warden Compliance Checklist</span>
                 <div className="flex flex-col gap-xs mt-xs text-xs text-secondary">
                   <div className="flex items-center gap-sm">
-                    <span className="text-success">✔</span>
-                    <span>No disciplinary infractions recorded in cell block logs.</span>
+                    <span style={{ color: selectedInmate.eligibilityStatus !== "Ineligible" ? 'var(--success-color)' : 'var(--danger-color)', fontWeight: 'bold' }}>
+                      {selectedInmate.eligibilityStatus !== "Ineligible" ? "✔" : "✘"}
+                    </span>
+                    <span>No active severe disciplinary infractions in cell logs.</span>
                   </div>
                   <div className="flex items-center gap-sm">
-                    <span className="text-success">✔</span>
-                    <span>Vocational labor participation quota completed ({selectedInmate.behaviorCreditsDays * 24} hrs).</span>
+                    <span style={{ color: selectedInmate.behaviorCreditsDays > 0 ? 'var(--success-color)' : 'var(--warning-color)', fontWeight: 'bold' }}>
+                      {selectedInmate.behaviorCreditsDays > 0 ? "✔" : "⏳"}
+                    </span>
+                    <span>
+                      {selectedInmate.behaviorCreditsDays > 0 
+                        ? `Vocational labor quota logged (${selectedInmate.behaviorCreditsDays * 8} hrs).` 
+                        : "Vocational labor hours pending quota logging."}
+                    </span>
                   </div>
                   <div className="flex items-center gap-sm">
-                    <span className="text-success">✔</span>
-                    <span>Medical evaluation file and health logs updated.</span>
+                    <span style={{ color: selectedInmate.rehabilitationDetails !== "Awaiting Assignment" ? 'var(--success-color)' : 'var(--warning-color)', fontWeight: 'bold' }}>
+                      {selectedInmate.rehabilitationDetails !== "Awaiting Assignment" ? "✔" : "⏳"}
+                    </span>
+                    <span>Medical & rehabilitation evaluation file status: {selectedInmate.rehabilitationDetails}.</span>
                   </div>
                 </div>
               </div>
@@ -312,13 +322,16 @@ const JailerDossier = () => {
 
               <div className="form-group">
                 <label className="form-label">Cell Block Allocation</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  placeholder="Block B, Cell 8"
+                <select 
+                  className="form-control"
                   value={newBlock}
                   onChange={(e) => setNewBlock(e.target.value)}
-                />
+                >
+                  <option value="Block A, Cell 1">Block A (Standard Detention)</option>
+                  <option value="Block B, Cell 4">Block B (Reformatory Wing)</option>
+                  <option value="Block C, Cell 8">Block C (Vocational & Labor)</option>
+                  <option value="Block D, Special Cell">Block D (High Security)</option>
+                </select>
               </div>
 
               <div className="form-group">

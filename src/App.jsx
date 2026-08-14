@@ -17,16 +17,21 @@ import JailerDossier from './pages/jailer/JailerDossier';
 import JailerApprovals from './pages/jailer/JailerApprovals';
 import JailerNotifications from './pages/jailer/JailerNotifications';
 import JailerModelSimulator from './pages/jailer/JailerModelSimulator';
+import JailerVisitations from './pages/jailer/JailerVisitations';
 
 // Lawyer Portal Pages
+import LawyerDashboard from './pages/lawyer/LawyerDashboard';
 import LawyerRequests from './pages/lawyer/LawyerRequests';
 import LawyerBilling from './pages/lawyer/LawyerBilling';
+import LawyerPetitions from './pages/lawyer/LawyerPetitions';
 
 // Government Portal Pages
+import GovernmentDashboard from './pages/government/GovernmentDashboard';
 import GovtRequests from './pages/government/GovtRequests';
 import GovtPrisons from './pages/government/GovtPrisons';
 import GovtDatabase from './pages/government/GovtDatabase';
 import GovtSubscription from './pages/government/GovtSubscription';
+import GovtPolicies from './pages/government/GovtPolicies';
 
 function App() {
   return (
@@ -40,21 +45,26 @@ function App() {
           <Route path="dashboard" element={<JailerDashboard />} />
           <Route path="dossiers" element={<JailerDossier />} />
           <Route path="approvals" element={<JailerApprovals />} />
+          <Route path="visitations" element={<JailerVisitations />} />
           <Route path="eligibility-model" element={<JailerModelSimulator />} />
           <Route path="notifications" element={<JailerNotifications />} />
         </Route>
 
         {/* Lawyer Portal */}
         <Route path="/lawyer" element={<Layout />}>
-          <Route index element={<Navigate to="requests" replace />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<LawyerDashboard />} />
           <Route path="requests" element={<LawyerRequests />} />
+          <Route path="petitions" element={<LawyerPetitions />} />
           <Route path="billing" element={<LawyerBilling />} />
         </Route>
 
         {/* Government Portal */}
         <Route path="/government" element={<Layout />}>
-          <Route index element={<Navigate to="requests" replace />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<GovernmentDashboard />} />
           <Route path="requests" element={<GovtRequests />} />
+          <Route path="policies" element={<GovtPolicies />} />
           <Route path="prisons" element={<GovtPrisons />} />
           <Route path="database" element={<GovtDatabase />} />
           <Route path="subscription" element={<GovtSubscription />} />

@@ -287,6 +287,7 @@ Status: CERTIFIED PAID
                   <tr style={{ backgroundColor: 'var(--bg-secondary)', borderBottom: '1px solid var(--border-color)' }}>
                     <th className="p-sm text-xxs font-bold text-secondary uppercase tracking-wider">Invoice ID</th>
                     <th className="p-sm text-xxs font-bold text-secondary uppercase tracking-wider">Billing Date</th>
+                    <th className="p-sm text-xxs font-bold text-secondary uppercase tracking-wider">Coverage Period</th>
                     <th className="p-sm text-xxs font-bold text-secondary uppercase tracking-wider">Amount</th>
                     <th className="p-sm text-xxs font-bold text-secondary uppercase tracking-wider">Receipt</th>
                   </tr>
@@ -296,6 +297,7 @@ Status: CERTIFIED PAID
                     <tr key={invoice.id} style={{ borderBottom: idx === billingList.length - 1 ? 'none' : '1px solid var(--border-color)' }}>
                       <td className="p-sm text-xxs font-bold text-primary">{invoice.id}</td>
                       <td className="p-sm text-xxs text-secondary">{invoice.date}</td>
+                      <td className="p-sm text-xxs text-muted">{invoice.period || '2025 - 2026'}</td>
                       <td className="p-sm text-xxs font-semibold text-primary">{invoice.amount}</td>
                       <td className="p-sm text-xxs">
                         {/* Dynamic Button 3: Download invoice receipt */}

@@ -10,6 +10,7 @@ const LegalDocuments = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestDocName, setRequestDocName] = useState('');
   const [requestReason, setRequestReason] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
 
   const handleUpload = () => {
     setUploading(true);
@@ -22,10 +23,11 @@ const LegalDocuments = () => {
   const handleRequestSubmit = (e) => {
     e.preventDefault();
     if (!requestDocName) return;
-    alert(`Your request for "${requestDocName}" has been logged! The legal team will upload it shortly.`);
+    setToastMessage(`Your request for "${requestDocName}" has been logged! The legal team will upload it shortly.`);
     setRequestDocName('');
     setRequestReason('');
     setShowRequestModal(false);
+    setTimeout(() => setToastMessage(''), 4500);
   };
 
   return (
@@ -38,14 +40,21 @@ const LegalDocuments = () => {
         </div>
         {isVerified ? (
           <div className="badge badge-success flex items-center gap-xs" style={{ fontSize: '0.9rem', padding: '8px 16px', borderRadius: '12px' }}>
-            <ShieldCheck size={18} /> Verified Access
+            <CheckCircle2 size={16}/> Identity Verified
           </div>
         ) : (
-          <div className="badge badge-danger flex items-center gap-xs" style={{ fontSize: '0.9rem', padding: '8px 16px', borderRadius: '12px' }}>
-            <Lock size={18} /> Locked Access
-          </div>
+          <button className="btn btn-primary" onClick={handleUpload} disabled={uploading}>
+            <UploadCloud size={18}/> {uploading ? 'Verifying...' : 'Verify Identity to Unlock'}
+          </button>
         )}
       </div>
+
+      {toastMessage && (
+        <div className="toast-banner toast-success">
+          <CheckCircle2 size={18} />
+          {toastMessage}
+        </div>
+      )}
 
       {/* Main split layout */}
       <div className="grid" style={{ gridTemplateColumns: '2fr 1fr', gap: '20px', alignItems: 'start' }}>

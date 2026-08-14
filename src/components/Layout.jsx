@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, FileText, Scale, Users, CheckCircle, Bell, ArrowLeft, 
   ShieldAlert, Settings, Calendar, ShieldCheck, ClipboardList, TrendingUp, Cpu,
-  Building, Database, CreditCard
+  Building, Database, CreditCard, BookOpen
 } from 'lucide-react';
 import FloatingChatbot from './FloatingChatbot';
 
@@ -41,6 +41,7 @@ const Layout = () => {
       { to: '/jailer/dashboard', label: 'Eligibility & Reports', icon: ClipboardList },
       { to: '/jailer/dossiers', label: 'Inmate Dossiers', icon: FileText },
       { to: '/jailer/approvals', label: 'Release Approvals', icon: ShieldCheck },
+      { to: '/jailer/visitations', label: 'Visitation Control', icon: Users },
       { to: '/jailer/eligibility-model', label: 'AI Eligibility Model', icon: Cpu },
       { to: '/jailer/notifications', label: 'Warden Notifications', icon: Bell },
     ];
@@ -49,7 +50,9 @@ const Layout = () => {
     userLabel = 'Adv. S. Nair';
     avatarInitials = 'SN';
     sidebarLinks = [
+      { to: '/lawyer/dashboard', label: 'Portfolio Dashboard', icon: LayoutDashboard },
       { to: '/lawyer/requests', label: 'Consultations', icon: Scale },
+      { to: '/lawyer/petitions', label: 'Court Petitions', icon: FileText },
       { to: '/lawyer/billing', label: 'Billing & Schedule', icon: CreditCard },
     ];
   } else if (path.startsWith('/government')) {
@@ -57,7 +60,9 @@ const Layout = () => {
     userLabel = 'Director A. Verma';
     avatarInitials = 'AV';
     sidebarLinks = [
+      { to: '/government/dashboard', label: 'Judicial Analytics', icon: LayoutDashboard },
       { to: '/government/requests', label: 'Warden Requests', icon: FileText },
+      { to: '/government/policies', label: 'Policy Directives', icon: BookOpen },
       { to: '/government/prisons', label: 'Statewide Prisons', icon: Building },
       { to: '/government/database', label: 'System Database', icon: Database },
       { to: '/government/subscription', label: 'Subscription Billing', icon: CreditCard },

@@ -8,11 +8,22 @@ const GovtRequests = () => {
   const [selectedReq, setSelectedReq] = useState(mockJailerRequests[0]);
   const [signing, setSigning] = useState(false);
   const [signedStamp, setSignedStamp] = useState(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Dynamic simulation multipliers/weights
   const [conductWeight, setConductWeight] = useState(80);
   const [rehabWeight, setRehabWeight] = useState(75);
   const [termWeight, setTermWeight] = useState(85);
+
+  const selectRequest = (req) => {
+    setSelectedReq(req);
+    setSignedStamp(null);
+    setShowResetConfirm(false);
+    // Reset coefficient sliders for fresh evaluation of selected request
+    setConductWeight(80);
+    setRehabWeight(75);
+    setTermWeight(85);
+  };
 
   // Calculate dynamic radar datasets based on request parameters and slider values
   const getRadarData = (req) => {
@@ -118,7 +129,7 @@ census removal and physical release of custody.
               {requests.map((req, idx) => (
                 <div 
                   key={req.id}
-                  onClick={() => { setSelectedReq(req); setSignedStamp(null); }}
+                  onClick={() => selectRequest(req)}
                   style={{
                     padding: '16px',
                     borderBottom: idx === requests.length - 1 ? 'none' : '1px solid var(--border-color)',

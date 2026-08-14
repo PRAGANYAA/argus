@@ -1,15 +1,56 @@
 import React, { useState } from 'react';
 import { mockInmate, mockWorkDone } from '../data/mockData';
-import { Clock, AlertTriangle, Shield } from 'lucide-react';
+import { Clock, AlertTriangle, Shield, Download, CheckCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const EligibilityEngine = () => {
   const [showParoleModal, setShowParoleModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
   const totalDays = 3 * 365; // 3 years
   const servedDays = 180; // 6 months
   const creditDays = parseInt(mockInmate.goodBehaviorCredits.split(' ')[0]);
   const effectiveServed = servedDays + creditDays;
   const progressPercent = Math.min(100, Math.round((effectiveServed / totalDays) * 100));
+
+  const handleDownloadReport = () => {
+    const reportContent = `
+===================================================
+     ARGUS AI SENTENCE & ELIGIBILITY DIAGNOSTIC
+===================================================
+Report Reference   : RPT-ELIG-993201
+Inmate Name        : ${mockInmate.name}
+Inmate ID          : ${mockInmate.id}
+Generated Timestamp: ${new Date().toISOString()}
+===================================================
+
+1. SENTENCE & TIME SERVED ANALYSIS:
+- Total Sanctioned Sentence: ${mockInmate.sentenceTotal}
+- Time Served (Physical)   : ${mockInmate.timeServed} (${servedDays} Days)
+- Good Behavior Credits    : ${mockInmate.goodBehaviorCredits}
+- Effective Time Counted   : ${effectiveServed} Days (${progressPercent}%)
+
+2. ELIGIBILITY VERDICT & TRAJECTORY:
+- Parole Review Eligibility: On track for review in 12 Months
+- Minimum Mandate Served   : Compliant (Passed 50% Rule threshold for bail review)
+- Warden Behavior Score    : 92/100 (Exemplary Conduct)
+
+===================================================
+Certified by State Judicial Analytics Platform
+    `;
+
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Eligibility_Diagnostic_Report_${mockInmate.id}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setToastMessage('Eligibility Diagnostic Report downloaded successfully!');
+    setTimeout(() => setToastMessage(''), 4000);
+  };
 
   return (
     <div className="flex flex-col gap-md h-full">
@@ -18,7 +59,17 @@ const EligibilityEngine = () => {
           <h1 className="h1" style={{ marginBottom: 0 }}>Release Eligibility Engine</h1>
           <p className="text-muted text-sm mt-xs">Track sentence progress, good behavior credits, and release eligibility.</p>
         </div>
+        <button className="btn btn-primary text-xs" onClick={handleDownloadReport}>
+          <Download size={14} /> Download Diagnostic Report
+        </button>
       </div>
+
+      {toastMessage && (
+        <div className="toast-banner toast-success">
+          <CheckCircle size={18} />
+          {toastMessage}
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-md">
         

@@ -1,21 +1,100 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mockRights, mockHelplines } from '../data/mockData';
-import { BookOpen, Phone, Info } from 'lucide-react';
+import { BookOpen, Phone, Info, Download, Search, CheckCircle } from 'lucide-react';
 
 const KnowYourRights = () => {
   const navigate = useNavigate();
-  const inmateRights = mockRights.filter(r => r.category === 'Inmate Rights');
-  const familyRights = mockRights.filter(r => r.category === 'Family Rights');
-  const caseLaws = mockRights.filter(r => r.category === 'Case Laws');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
+
+  const filteredRights = mockRights.filter(r => 
+    r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const inmateRights = filteredRights.filter(r => r.category === 'Inmate Rights');
+  const familyRights = filteredRights.filter(r => r.category === 'Family Rights');
+  const caseLaws = filteredRights.filter(r => r.category === 'Case Laws');
+
+  const handleDownloadHandbook = () => {
+    const handbookContent = `
+===================================================
+       STATE LEGAL AID & CITIZEN RIGHTS HANDBOOK
+===================================================
+Document Reference: HBK-RIGHTS-2026
+Generated Date    : ${new Date().toISOString().split('T')[0]}
+Jurisdiction      : State Judiciary & Constitutional Provisions
+===================================================
+
+1. RIGHTS OF THE INMATE:
+---------------------------------------------------
+- Right to Legal Counsel: Free legal assistance under Section 304 CrPC & Article 39A.
+- Right Against Handcuffing: Handcuffing is prohibited unless explicit judicial authorization is granted (Prem Shankar Shukla v. Delhi Administration).
+- Speedy Trial Guarantee: Under Section 436A CrPC, under-trials who served 50% max penalty qualify for bail.
+- Medical & Sanitary Care: Guaranteed access to prison medical officers and sanitary facilities.
+
+2. RIGHTS OF THE FAMILY:
+---------------------------------------------------
+- Right to Immediate Arrest Notification: Police must inform family/relatives immediately upon arrest (D.K. Basu Guidelines).
+- Visitation Rights (Mulakat): Right to physical or virtual visitation twice a week.
+- Access to Case Documents: Family members can request certified copies of FIR, remand orders, and charge sheets.
+
+3. EMERGENCY HELPLINES:
+---------------------------------------------------
+- National Legal Services Authority (NALSA): 15100
+- State Human Rights Commission: 1800-11-4430
+- Police Emergency Control Room: 112
+- Women & Children Legal Cell: 1091
+
+===================================================
+This document serves as an official citizen handbook.
+    `;
+
+    const blob = new Blob([handbookContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Legal_Rights_Handbook_2026.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setToastMessage('Legal Rights Handbook downloaded successfully!');
+    setTimeout(() => setToastMessage(''), 4000);
+  };
 
   return (
     <div className="flex flex-col gap-md">
       <div className="flex justify-between items-center mb-sm">
         <div>
           <h1 className="h1" style={{ marginBottom: 0 }}>Know Your Rights</h1>
-          <p className="text-muted">A comprehensive guide to legal rights, laws, and emergency helplines.</p>
+          <p className="text-muted text-sm mt-xs">A comprehensive guide to legal rights, laws, and emergency helplines.</p>
         </div>
+        <button className="btn btn-primary text-xs" onClick={handleDownloadHandbook}>
+          <Download size={14} /> Download Rights Handbook
+        </button>
+      </div>
+
+      {toastMessage && (
+        <div className="toast-banner toast-success">
+          <CheckCircle size={18} />
+          {toastMessage}
+        </div>
+      )}
+
+      {/* Search Input */}
+      <div className="card p-sm flex items-center gap-sm">
+        <Search size={16} className="text-muted ml-xs" />
+        <input 
+          type="text" 
+          className="form-control text-xs" 
+          placeholder="Search legal rights, laws, or constitutional clauses..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ border: 'none', boxShadow: 'none' }}
+        />
       </div>
 
       <div className="grid grid-cols-3 gap-md">

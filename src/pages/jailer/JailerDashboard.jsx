@@ -38,10 +38,18 @@ const JailerDashboard = () => {
   const [prisoners, setPrisoners] = useState(initialPrisoners);
   const [selectedPrisoner, setSelectedPrisoner] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Chart interactivity states
   const [activePieIndex, setActivePieIndex] = useState(null);
   const [hoveredBarIndex, setHoveredBarIndex] = useState(null);
+
+  const filteredPrisoners = prisoners.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.crime.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    p.eligibilityStatus.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Compute metrics
   const totalInmates = prisoners.length;
@@ -240,8 +248,18 @@ const JailerDashboard = () => {
       {/* Inmate Registry Table - Fixed with overflow scroll for small viewports */}
       <div className="card mt-sm">
         <div className="card-header flex justify-between items-center" style={{ borderBottom: '1px solid var(--border-color)', padding: '15px 20px' }}>
-          <h3 className="card-title">Prisoner Legal Eligibility List</h3>
-          <span className="text-xxs uppercase tracking-wider font-bold text-muted">Click an inmate record to inspect detailed AI predictions</span>
+          <div>
+            <h3 className="card-title">Prisoner Legal Eligibility List</h3>
+            <span className="text-xxs uppercase tracking-wider font-bold text-muted block mt-xxs">Click an inmate record to inspect detailed AI predictions</span>
+          </div>
+          <input 
+            type="text" 
+            className="form-control text-xs" 
+            placeholder="Search by ID, name, crime or status..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ width: '260px', padding: '6px 12px' }}
+          />
         </div>
         <div className="card-body p-0" style={{ padding: 0, overflowX: 'auto', width: '100%' }}>
           <table className="w-full text-left" style={{ borderCollapse: 'collapse', minWidth: '850px' }}>
@@ -257,7 +275,7 @@ const JailerDashboard = () => {
               </tr>
             </thead>
             <tbody>
-              {prisoners.map((prisoner, idx) => (
+              {filteredPrisoners.map((prisoner, idx) => (
                 <tr 
                   key={prisoner.id} 
                   style={{ borderBottom: idx === prisoners.length - 1 ? 'none' : '1px solid var(--border-color)', cursor: 'pointer' }}

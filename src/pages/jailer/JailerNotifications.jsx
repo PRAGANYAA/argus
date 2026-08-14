@@ -32,6 +32,8 @@ const JailerNotifications = () => {
     }
   };
 
+  const [toastMessage, setToastMessage] = useState('');
+
   // Simulate dynamic registration delay
   const handleResolveAction = (note) => {
     if (note.type !== 'action') return;
@@ -52,7 +54,8 @@ const JailerNotifications = () => {
       }));
 
       setResolvingId(null);
-      alert(`Successfully registered ${note.actionPayload.name} into Cell Registry!`);
+      setToastMessage(`Successfully registered ${note.actionPayload.name} into Cell Registry!`);
+      setTimeout(() => setToastMessage(''), 4500);
     }, 1200);
   };
 
@@ -120,6 +123,13 @@ const JailerNotifications = () => {
           </p>
         </div>
       </div>
+
+      {toastMessage && (
+        <div className="toast-banner toast-success">
+          <CheckCircle size={18} />
+          {toastMessage}
+        </div>
+      )}
 
       {/* Split grid */}
       <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px', alignItems: 'start' }}>

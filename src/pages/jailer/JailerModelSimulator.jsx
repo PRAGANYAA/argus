@@ -14,6 +14,7 @@ const JailerModelSimulator = () => {
   const [predicting, setPredicting] = useState(false);
   const [predictionComplete, setPredictionComplete] = useState(false);
   const [animatedScore, setAnimatedScore] = useState(0);
+  const [savedToDossier, setSavedToDossier] = useState(false);
 
   // Calculations
   const termServedRatio = Math.round((servedMonths / sentenceMonths) * 100) || 0;
@@ -110,7 +111,12 @@ const JailerModelSimulator = () => {
                   min="6" 
                   max="120" 
                   value={sentenceMonths}
-                  onChange={(e) => { setSentenceMonths(parseInt(e.target.value)); setPredictionComplete(false); }}
+                  onChange={(e) => { 
+                    const newSentence = parseInt(e.target.value); 
+                    setSentenceMonths(newSentence); 
+                    if (servedMonths > newSentence) setServedMonths(newSentence);
+                    setPredictionComplete(false); 
+                  }}
                   style={{ width: '100%', accentColor: 'var(--primary-color)' }}
                 />
               </div>
@@ -403,30 +409,45 @@ const JailerModelSimulator = () => {
                 borderRadius: 'var(--border-radius-md)',
                 padding: '16px 20px',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'between',
+                flexDirection: 'column',
+                gap: '10px',
                 marginTop: '15px',
                 animation: 'fadeIn 0.5s ease-out'
               }}>
-                <div style={{ flex: 1 }}>
-                  <span style={{ fontSize: '8px', fontWeight: 'bold', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>AI Predictive Diagnosis Report</span>
-                  <h3 style={{ fontFamily: 'var(--font-family-serif)', fontSize: '1.25rem', color: isEligible ? 'var(--success-color)' : 'var(--danger-color)', margin: '4px 0 0 0' }}>
-                    {inmateName} is: {eligibilityVerdict}
-                  </h3>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px', margin: 0 }}>
-                    Decision criteria resolved with final coefficient of <strong>{finalScore}/100</strong>. Action logs dispatched.
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div style={{ flex: 1 }}>
+                    <span style={{ fontSize: '8px', fontWeight: 'bold', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>AI Predictive Diagnosis Report</span>
+                    <h3 style={{ fontFamily: 'var(--font-family-serif)', fontSize: '1.25rem', color: isEligible ? 'var(--success-color)' : 'var(--danger-color)', margin: '4px 0 0 0' }}>
+                      {inmateName} is: {eligibilityVerdict}
+                    </h3>
+                    <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px', margin: 0 }}>
+                      Decision criteria resolved with final coefficient of <strong>{finalScore}/100</strong>. Action logs dispatched.
+                    </p>
+                  </div>
+                  <div style={{ marginLeft: '15px' }}>
+                    {isEligible ? (
+                      <div style={{ padding: '8px', backgroundColor: 'var(--success-color)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <ShieldCheck size={24} />
+                      </div>
+                    ) : (
+                      <div style={{ padding: '8px', backgroundColor: 'var(--danger-color)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <AlertTriangle size={24} />
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div style={{ marginLeft: '15px' }}>
-                  {isEligible ? (
-                    <div style={{ padding: '8px', backgroundColor: 'var(--success-color)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <ShieldCheck size={24} />
-                    </div>
-                  ) : (
-                    <div style={{ padding: '8px', backgroundColor: 'var(--danger-color)', color: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <AlertTriangle size={24} />
-                    </div>
-                  )}
+
+                <div className="flex justify-end mt-xs">
+                  <button 
+                    type="button"
+                    className="btn btn-primary text-xs"
+                    onClick={() => {
+                      setSavedToDossier(true);
+                      setTimeout(() => setSavedToDossier(false), 4000);
+                    }}
+                  >
+                    {savedToDossier ? "✔ Saved to Official Dossier Logs" : "Save Simulation to Inmate Dossier"}
+                  </button>
                 </div>
               </div>
             )}

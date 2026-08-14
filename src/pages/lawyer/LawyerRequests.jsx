@@ -383,6 +383,11 @@ const LawyerRequests = () => {
                         <span className="text-xxs text-muted block mt-xxs">Connecting prison cell video dock...</span>
                       </div>
                     </div>
+                  ) : camOff ? (
+                    <div className="flex flex-col items-center justify-center text-center gap-sm text-white">
+                      <VideoOff size={40} className="text-muted" />
+                      <span className="text-xs text-muted font-bold">Camera Muted by Attorney</span>
+                    </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center text-center gap-md text-white">
                       
@@ -396,7 +401,9 @@ const LawyerRequests = () => {
                         fontSize: '1.5rem', fontWeight: '800',
                         boxShadow: '0 0 15px var(--success-color)'
                       }}>
-                        {selectedReq.clientName.charAt(9)}
+                        {selectedReq.clientName.includes('(') 
+                          ? selectedReq.clientName.split('(')[1].charAt(0).toUpperCase() 
+                          : selectedReq.clientName.charAt(0).toUpperCase()}
                       </div>
 
                       <div>
@@ -498,7 +505,7 @@ const LawyerRequests = () => {
                 This certified registry manifest represents mock file content for the uploaded <strong>{previewDoc.name}</strong>. In production, this view links to the secure encrypted state digital locker (DLSA Cloud).
               </p>
               <div style={{ marginTop: '12px', fontSize: '9px', color: 'var(--text-muted)' }}>
-                Verification ID: VFY-${Math.floor(100000 + Math.random() * 900000)} | Status: Valid
+                Verification ID: VFY-982410-MOJ | Status: Valid & Sealed
               </div>
             </div>
 

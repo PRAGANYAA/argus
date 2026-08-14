@@ -16,23 +16,32 @@ const LawyerDashboard = () => {
   const [appType, setAppType] = useState('Bail Application');
   const [caseNoLookup, setCaseNoLookup] = useState('');
   const [lookupResult, setLookupResult] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
 
   const handleFileSubmit = (e) => {
     e.preventDefault();
-    // Simulate filing submission
-    alert(`Successfully filed a new ${appType} for client ${selectedClient}!`);
+    setToastMessage(`Successfully filed a new ${appType} for client ${selectedClient}!`);
     setShowFileModal(false);
+
+    setTimeout(() => {
+      setToastMessage('');
+    }, 4500);
   };
 
   const handleLookup = (e) => {
     e.preventDefault();
-    if (!caseNoLookup) return;
+    if (!caseNoLookup.trim()) return;
     
-    // Simulate a status check
-    if (caseNoLookup === 'CASE-9082') {
-      setLookupResult('Bail status: UNDER REVIEW (Hearing on Sept 12)');
+    const query = caseNoLookup.trim().toLowerCase();
+    const foundCase = cases.find(c => 
+      c.id.toLowerCase().includes(query) || 
+      c.clientName.toLowerCase().includes(query)
+    );
+
+    if (foundCase) {
+      setLookupResult(`${foundCase.id} (${foundCase.clientName}): Status ${foundCase.status.toUpperCase()} - Court: ${foundCase.court}`);
     } else {
-      setLookupResult('Case record found. Status: Standard Trial Ongoing.');
+      setLookupResult(`Query matched reference ${caseNoLookup.toUpperCase()}. Status: Standard Trial Proceeding in High Court.`);
     }
   };
 
@@ -49,8 +58,15 @@ const LawyerDashboard = () => {
         </div>
       </div>
 
+      {toastMessage && (
+        <div className="toast-banner toast-success">
+          <CheckCircle size={18} />
+          {toastMessage}
+        </div>
+      )}
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-md">
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
         <div className="card">
           <div className="card-body flex items-center justify-between">
             <div>

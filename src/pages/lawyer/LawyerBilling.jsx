@@ -23,13 +23,29 @@ const LawyerBilling = () => {
   const [invoices, setInvoices] = useState(mockBillingTransactions);
   const [appointments, setAppointments] = useState(mockAppointments);
   const [requestingId, setRequestingId] = useState(null);
+  const [showAppModal, setShowAppModal] = useState(false);
+  
+  // Modal form state
+  const [newClient, setNewClient] = useState('');
+  const [newAppType, setNewAppType] = useState('Free Aid Counsel');
+  const [newDateTime, setNewDateTime] = useState('');
+
+  // Dynamic calculations
+  const totalClearedAmount = invoices
+    .filter(i => i.status === 'Cleared')
+    .reduce((acc, curr) => acc + parseInt(curr.amount.replace(/[^0-9]/g, '')), 0) + 9500; // include base history
+
+  const unpaidCount = invoices.filter(i => i.status !== 'Cleared').length;
+  const unpaidTotalAmount = invoices
+    .filter(i => i.status !== 'Cleared')
+    .reduce((acc, curr) => acc + parseInt(curr.amount.replace(/[^0-9]/g, '')), 0);
 
   // Revenue analytics data
   const revenueData = [
     { month: 'May', earnings: 4200 },
     { month: 'Jun', earnings: 7800 },
     { month: 'Jul', earnings: 6200 },
-    { month: 'Aug', earnings: 9500 }
+    { month: 'Aug', earnings: totalClearedAmount }
   ];
 
   // Request payment release animation
@@ -46,6 +62,24 @@ const LawyerBilling = () => {
     }, 1200);
   };
 
+  const handleCreateAppointment = (e) => {
+    e.preventDefault();
+    if (!newClient || !newDateTime) return;
+
+    const newApp = {
+      id: `APP-0${appointments.length + 1}`,
+      client: newClient,
+      type: newAppType,
+      dateTime: newDateTime,
+      status: "Scheduled"
+    };
+
+    setAppointments(prev => [newApp, ...prev]);
+    setNewClient('');
+    setNewDateTime('');
+    setShowAppModal(false);
+  };
+
   return (
     <div className="flex flex-col gap-md" style={{ width: '100%' }}>
       
@@ -55,6 +89,9 @@ const LawyerBilling = () => {
           <h1 className="h1" style={{ marginBottom: 0 }}>Billing, Fees & Schedule</h1>
           <p className="text-muted text-sm mt-xs">Audit court-certified consultation fee logs, appointments schedules, and dispatch legal aid clearance claims.</p>
         </div>
+        <button className="btn btn-primary text-xs" onClick={() => setShowAppModal(true)}>
+          <Calendar size={14} className="mr-xs" /> Book Appointment
+        </button>
       </div>
 
       {/* Grid: Stats row */}
@@ -63,7 +100,7 @@ const LawyerBilling = () => {
           <div className="card-body flex items-center justify-between" style={{ padding: '20px' }}>
             <div>
               <span className="text-xxs text-muted uppercase font-bold tracking-wider block">Total Earnings</span>
-              <h2 className="h2 mt-xs" style={{ margin: 0 }}>₹13,800</h2>
+              <h2 className="h2 mt-xs" style={{ margin: 0 }}>₹{totalClearedAmount.toLocaleString('en-IN')}</h2>
               <span className="text-xxs text-secondary block mt-xs">Including cleared aid claims</span>
             </div>
             <div style={{ padding: '12px', backgroundColor: 'var(--success-light)', borderRadius: '50%', color: 'var(--success-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -76,8 +113,8 @@ const LawyerBilling = () => {
           <div className="card-body flex items-center justify-between" style={{ padding: '20px' }}>
             <div>
               <span className="text-xxs text-muted uppercase font-bold tracking-wider block">Unpaid Invoices</span>
-              <h2 className="h2 mt-xs" style={{ margin: 0, color: 'var(--warning-color)' }}>₹1,500</h2>
-              <span className="text-xxs text-secondary block mt-xs">1 invoice pending release</span>
+              <h2 className="h2 mt-xs" style={{ margin: 0, color: 'var(--warning-color)' }}>₹{unpaidTotalAmount.toLocaleString('en-IN')}</h2>
+              <span className="text-xxs text-secondary block mt-xs">{unpaidCount} invoice(s) pending release</span>
             </div>
             <div style={{ padding: '12px', backgroundColor: 'var(--warning-light)', borderRadius: '50%', color: 'var(--warning-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <CreditCard size={20} />
@@ -224,6 +261,70 @@ const LawyerBilling = () => {
         </div>
 
       </div>
+
+      {/* MODAL: Book Appointment */}
+      {showAppModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(59, 50, 40, 0.45)', backdropFilter: 'blur(5px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }}>
+          <div className="card p-lg" style={{ width: '420px', backgroundColor: 'var(--bg-card)' }}>
+            <h3 style={{ fontFamily: 'var(--font-family-serif)', fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: '15px', textAlign: 'center' }}>
+              Book Legal Consultation Slot
+            </h3>
+            
+            <form onSubmit={handleCreateAppointment} className="flex flex-col gap-md">
+              <div className="form-group">
+                <label className="form-label">Client Name / Inmate</label>
+                <input 
+                  type="text" 
+                  className="form-control"
+                  placeholder="e.g. Prisoner 4 (Vikas)"
+                  value={newClient}
+                  onChange={(e) => setNewClient(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Consultation Category</label>
+                <select 
+                  className="form-control"
+                  value={newAppType}
+                  onChange={(e) => setNewAppType(e.target.value)}
+                >
+                  <option value="Free Aid Counsel">Free Aid Legal Counsel</option>
+                  <option value="Charged Hearing Prep">Charged Hearing Preparation</option>
+                  <option value="Bail Motion Prep">Bail Motion Filing Strategy</option>
+                  <option value="Warden Interview">Warden Conduct Evaluation</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Date & Time Slot</label>
+                <input 
+                  type="text" 
+                  className="form-control"
+                  placeholder="e.g. 18 Aug 2026, 03:00 PM"
+                  value={newDateTime}
+                  onChange={(e) => setNewDateTime(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="flex gap-sm">
+                <button type="button" className="btn btn-outline w-full" onClick={() => setShowAppModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary w-full">
+                  Confirm Schedule
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .spin {

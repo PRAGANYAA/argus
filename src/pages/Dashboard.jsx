@@ -17,7 +17,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-md">
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
         {/* Quick Stats Cards */}
         <div className="card">
           <div className="card-body flex items-center justify-between">

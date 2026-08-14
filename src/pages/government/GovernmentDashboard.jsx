@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { TrendingUp, Award, DollarSign, ShieldAlert, BarChart3 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { TrendingUp, Award, DollarSign, ShieldAlert, BarChart3, CheckCircle } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const prisonOccupancyData = [
   { name: 'Central Jail', occupancy: 850, capacity: 1000 },
@@ -21,19 +21,27 @@ const GovernmentDashboard = () => {
   const [targetPrison, setTargetPrison] = useState('Central Jail');
   const [fundingAmount, setFundingAmount] = useState('');
   const [fundingProgram, setFundingProgram] = useState('Rehabilitation & Labor');
+  const [toastMessage, setToastMessage] = useState('');
+
+  const totalBudgetAllocated = Object.values(allocatedBudgets).reduce((acc, curr) => acc + curr, 0);
 
   const handleAllocation = (e) => {
     e.preventDefault();
     if (!fundingAmount) return;
 
+    const amount = parseInt(fundingAmount);
     setAllocatedBudgets(prev => ({
       ...prev,
-      [targetPrison]: prev[targetPrison] + parseInt(fundingAmount)
+      [targetPrison]: prev[targetPrison] + amount
     }));
 
-    alert(`Successfully allocated ₹${fundingAmount} to ${targetPrison} for ${fundingProgram}!`);
+    setToastMessage(`Successfully allocated ₹${amount.toLocaleString('en-IN')} to ${targetPrison} for ${fundingProgram}!`);
     setFundingAmount('');
     setShowAllocateModal(false);
+
+    setTimeout(() => {
+      setToastMessage('');
+    }, 4500);
   };
 
   return (
@@ -46,10 +54,17 @@ const GovernmentDashboard = () => {
         <button className="btn btn-primary" onClick={() => setShowAllocateModal(true)}><DollarSign size={16} /> Allocate Legal Aid Funding</button>
       </div>
 
+      {toastMessage && (
+        <div className="toast-banner toast-success">
+          <CheckCircle size={18} />
+          {toastMessage}
+        </div>
+      )}
+
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-md">
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
         <div className="card">
-          <div className="card-body flex items-center justify-between">
+          <div className="card-body flex items-center justify-between" style={{ padding: '20px' }}>
             <div>
               <p className="text-muted text-sm font-semibold mb-xs">State Facilities</p>
               <h2 className="h2" style={{ margin: 0 }}>4</h2>
@@ -61,7 +76,7 @@ const GovernmentDashboard = () => {
         </div>
 
         <div className="card">
-          <div className="card-body flex items-center justify-between">
+          <div className="card-body flex items-center justify-between" style={{ padding: '20px' }}>
             <div>
               <p className="text-muted text-sm font-semibold mb-xs">Total Inmate Population</p>
               <h2 className="h2" style={{ margin: 0 }}>1,570</h2>
@@ -73,7 +88,7 @@ const GovernmentDashboard = () => {
         </div>
 
         <div className="card">
-          <div className="card-body flex items-center justify-between">
+          <div className="card-body flex items-center justify-between" style={{ padding: '20px' }}>
             <div>
               <p className="text-muted text-sm font-semibold mb-xs">Parole Reviews Pending</p>
               <h2 className="h2" style={{ margin: 0 }}>38</h2>
@@ -85,10 +100,10 @@ const GovernmentDashboard = () => {
         </div>
 
         <div className="card">
-          <div className="card-body flex items-center justify-between">
+          <div className="card-body flex items-center justify-between" style={{ padding: '20px' }}>
             <div>
               <p className="text-muted text-sm font-semibold mb-xs">Budget Allocated</p>
-              <h2 className="h2" style={{ margin: 0 }}>₹4.5L</h2>
+              <h2 className="h2" style={{ margin: 0 }}>₹{(totalBudgetAllocated / 100000).toFixed(2)}L</h2>
             </div>
             <div style={{ padding: '12px', backgroundColor: 'var(--success-light)', borderRadius: '50%', color: 'var(--success-color)' }}>
               <DollarSign />
@@ -98,7 +113,7 @@ const GovernmentDashboard = () => {
       </div>
 
       {/* Analytics Chart & Allocation Directory */}
-      <div className="grid grid-cols-3 gap-md mt-sm">
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
         {/* Occupancy vs Capacity chart */}
         <div className="card" style={{ gridColumn: 'span 2' }}>
           <div className="card-header">
@@ -113,7 +128,8 @@ const GovernmentDashboard = () => {
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'var(--bg-card)', borderRadius: 'var(--border-radius-sm)', border: 'none', boxShadow: 'var(--shadow-md)' }}
                 />
-                <Bar dataKey="occupancy" name="Occupancy" fill="var(--primary-color)" radius={[4, 4, 0, 0]} />
+                <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
+                <Bar dataKey="occupancy" name="Current Occupancy" fill="var(--primary-color)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="capacity" name="Total Capacity" fill="var(--primary-light)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
