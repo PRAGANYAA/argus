@@ -82,40 +82,7 @@ It provides the intelligence and monitoring layer around them.
 
 # 🏗️ Technical Architecture
 
-```text
-                 ┌──────────────────────┐
-                 │ eCourts / Case APIs  │
-                 └──────────┬───────────┘
-                            ↓
-                 ┌──────────────────────┐
-                 │ Data Ingestion Layer │
-                 │ APIs + Scheduled Jobs│
-                 └──────────┬───────────┘
-                            ↓
-              ┌────────────────────────────┐
-              │      ARGUS AI LAYER        │
-              │                            │
-              │ Case Intelligence          │
-              │ Legal Eligibility          │
-              │ Justice Clock              │
-              │ Compliance                 │
-              └─────────────┬──────────────┘
-                            ↓
-              ┌────────────────────────────┐
-              │  Dossier + Accountability  │
-              │        Engine              │
-              └─────────────┬──────────────┘
-                            ↓
-                 ┌──────────────────────┐
-                 │ Authorized Dashboard │
-                 └──────────┬───────────┘
-                            ↓
-             ┌──────────────┴──────────────┐
-             ↓                             ↓
-        SMS / IVR                    Legal AI Interface
-             ↓                             ↓
-        Family/User              Legal-Aid Routing
-```
+<img width="1536" height="1024" alt="ChatGPT Image Aug 14, 2026, 06_58_09 PM" src="https://github.com/user-attachments/assets/9630e95f-c217-4d0f-b434-c33b5d89d873" />
 
 ---
 
