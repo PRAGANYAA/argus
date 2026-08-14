@@ -7,6 +7,34 @@ const Landing = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [passcode, setPasscode] = useState('');
   const [error, setError] = useState('');
+  
+  // Government Auth states
+  const [showGovModal, setShowGovModal] = useState(false);
+  const [govPasscode, setGovPasscode] = useState('');
+  const [govError, setGovError] = useState('');
+
+  // Lawyer Auth states
+  const [showLawyerModal, setShowLawyerModal] = useState(false);
+  const [lawyerPasscode, setLawyerPasscode] = useState('');
+  const [lawyerError, setLawyerError] = useState('');
+
+  const handleGovSubmit = (e) => {
+    e.preventDefault();
+    if (govPasscode === '1234') {
+      navigate('/government');
+    } else {
+      setGovError('Invalid Security Passcode. Access Denied.');
+    }
+  };
+
+  const handleLawyerSubmit = (e) => {
+    e.preventDefault();
+    if (lawyerPasscode === '1234') {
+      navigate('/lawyer');
+    } else {
+      setLawyerError('Invalid Security Passcode. Access Denied.');
+    }
+  };
 
   const handleAuthSubmit = (e) => {
     e.preventDefault();
@@ -134,7 +162,7 @@ const Landing = () => {
 
         {/* Government Card */}
         <div 
-          onClick={() => navigate('/government')}
+          onClick={() => setShowGovModal(true)}
           style={{ 
             backgroundColor: '#f5eedb', 
             borderRadius: '20px', 
@@ -222,7 +250,7 @@ const Landing = () => {
 
         {/* Lawyer Card */}
         <div 
-          onClick={() => navigate('/lawyer')}
+          onClick={() => setShowLawyerModal(true)}
           style={{ 
             backgroundColor: '#eae5ed', 
             borderRadius: '20px', 
@@ -322,6 +350,120 @@ const Landing = () => {
                 </button>
                 <button type="submit" className="btn btn-primary w-full" style={{ borderRadius: 'var(--border-radius-sm)' }}>
                   Verify
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Government Auth Modal */}
+      {showGovModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(59, 50, 40, 0.45)',
+          backdropFilter: 'blur(5px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="card p-lg" style={{ width: '400px', backgroundColor: 'var(--bg-card)', border: 'none', borderRadius: 'var(--border-radius-md)', boxShadow: 'var(--shadow-lg)' }}>
+            <div className="flex flex-col items-center text-center gap-sm mb-md">
+              <div style={{ padding: '12px', backgroundColor: 'var(--warning-light)', color: 'var(--warning-color)', borderRadius: '50%' }}>
+                <Lock size={24} />
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-family-serif)', fontSize: '1.4rem', color: 'var(--text-primary)', margin: 0 }}>
+                Government Authority Verification
+              </h3>
+              <p className="text-xs text-secondary" style={{ lineHeight: '1.4' }}>
+                Access is restricted to Deciding Judicial Authorities.<br />
+                Please enter the Security Passcode.
+              </p>
+            </div>
+            
+            <form onSubmit={handleGovSubmit} className="flex flex-col gap-md">
+              <div className="form-group" style={{ margin: 0 }}>
+                <input 
+                  type="password" 
+                  className="form-control" 
+                  placeholder="••••"
+                  value={govPasscode}
+                  onChange={(e) => { setGovPasscode(e.target.value); setGovError(''); }}
+                  style={{ textAlign: 'center', fontSize: '1.25rem', letterSpacing: '8px', padding: '12px' }}
+                  autoFocus
+                />
+                {govError && <span className="text-xs mt-xs block" style={{ color: 'var(--danger-color)', textAlign: 'center', fontWeight: '700' }}>{govError}</span>}
+              </div>
+
+              <p className="text-xs text-muted text-center" style={{ margin: 0 }}>
+                Hint: Enter test code <strong>1234</strong>
+              </p>
+              
+              <div className="flex gap-sm">
+                <button type="button" className="btn btn-outline w-full" onClick={() => { setShowGovModal(false); setGovPasscode(''); setGovError(''); }} style={{ borderRadius: 'var(--border-radius-sm)' }}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary w-full" style={{ borderRadius: 'var(--border-radius-sm)', backgroundColor: 'var(--warning-color)', borderColor: 'var(--warning-color)' }}>
+                  Verify Authority
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Lawyer Auth Modal */}
+      {showLawyerModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(59, 50, 40, 0.45)',
+          backdropFilter: 'blur(5px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="card p-lg" style={{ width: '400px', backgroundColor: 'var(--bg-card)', border: 'none', borderRadius: 'var(--border-radius-md)', boxShadow: 'var(--shadow-lg)' }}>
+            <div className="flex flex-col items-center text-center gap-sm mb-md">
+              <div style={{ padding: '12px', backgroundColor: 'var(--primary-light)', color: 'var(--primary-color)', borderRadius: '50%' }}>
+                <Lock size={24} />
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-family-serif)', fontSize: '1.4rem', color: 'var(--text-primary)', margin: 0 }}>
+                Lawyer Credentials Verification
+              </h3>
+              <p className="text-xs text-secondary" style={{ lineHeight: '1.4' }}>
+                Access restricted to Registered Legal Attorneys.<br />
+                Please enter the Security Passcode.
+              </p>
+            </div>
+            
+            <form onSubmit={handleLawyerSubmit} className="flex flex-col gap-md">
+              <div className="form-group" style={{ margin: 0 }}>
+                <input 
+                  type="password" 
+                  className="form-control" 
+                  placeholder="••••"
+                  value={lawyerPasscode}
+                  onChange={(e) => { setLawyerPasscode(e.target.value); setLawyerError(''); }}
+                  style={{ textAlign: 'center', fontSize: '1.25rem', letterSpacing: '8px', padding: '12px' }}
+                  autoFocus
+                />
+                {lawyerError && <span className="text-xs mt-xs block" style={{ color: 'var(--danger-color)', textAlign: 'center', fontWeight: '700' }}>{lawyerError}</span>}
+              </div>
+
+              <p className="text-xs text-muted text-center" style={{ margin: 0 }}>
+                Hint: Enter test code <strong>1234</strong>
+              </p>
+              
+              <div className="flex gap-sm">
+                <button type="button" className="btn btn-outline w-full" onClick={() => { setShowLawyerModal(false); setLawyerPasscode(''); setLawyerError(''); }} style={{ borderRadius: 'var(--border-radius-sm)' }}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary w-full" style={{ borderRadius: 'var(--border-radius-sm)' }}>
+                  Verify Attorney
                 </button>
               </div>
             </form>

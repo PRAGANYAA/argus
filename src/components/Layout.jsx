@@ -2,7 +2,8 @@ import React from 'react';
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, FileText, Scale, Users, CheckCircle, Bell, ArrowLeft, 
-  ShieldAlert, Settings, Calendar, ShieldCheck, ClipboardList, TrendingUp
+  ShieldAlert, Settings, Calendar, ShieldCheck, ClipboardList, TrendingUp, Cpu,
+  Building, Database, CreditCard
 } from 'lucide-react';
 import FloatingChatbot from './FloatingChatbot';
 
@@ -35,23 +36,31 @@ const Layout = () => {
     portalTitle = 'ARGUS JAILER';
     userLabel = 'Officer R. Singh';
     avatarInitials = 'RS';
+    showFloatingChat = true;
     sidebarLinks = [
-      { to: '/jailer/dashboard', label: 'Warden Dashboard', icon: ClipboardList },
-      { to: '/jailer/visitations', label: 'Visitations List', icon: ShieldCheck },
+      { to: '/jailer/dashboard', label: 'Eligibility & Reports', icon: ClipboardList },
+      { to: '/jailer/dossiers', label: 'Inmate Dossiers', icon: FileText },
+      { to: '/jailer/approvals', label: 'Release Approvals', icon: ShieldCheck },
+      { to: '/jailer/eligibility-model', label: 'AI Eligibility Model', icon: Cpu },
+      { to: '/jailer/notifications', label: 'Warden Notifications', icon: Bell },
     ];
   } else if (path.startsWith('/lawyer')) {
     portalTitle = 'ARGUS LAWYER';
     userLabel = 'Adv. S. Nair';
     avatarInitials = 'SN';
     sidebarLinks = [
-      { to: '/lawyer/dashboard', label: 'Lawyer Dashboard', icon: Scale },
+      { to: '/lawyer/requests', label: 'Consultations', icon: Scale },
+      { to: '/lawyer/billing', label: 'Billing & Schedule', icon: CreditCard },
     ];
   } else if (path.startsWith('/government')) {
     portalTitle = 'ARGUS GOVT';
     userLabel = 'Director A. Verma';
     avatarInitials = 'AV';
     sidebarLinks = [
-      { to: '/government/dashboard', label: 'Govt Dashboard', icon: TrendingUp },
+      { to: '/government/requests', label: 'Warden Requests', icon: FileText },
+      { to: '/government/prisons', label: 'Statewide Prisons', icon: Building },
+      { to: '/government/database', label: 'System Database', icon: Database },
+      { to: '/government/subscription', label: 'Subscription Billing', icon: CreditCard },
     ];
   }
 
