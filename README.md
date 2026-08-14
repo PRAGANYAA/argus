@@ -1,4 +1,4 @@
-ARGUS
+<h1 style="font-size:30px; font-weight:bold;">ARGUS</h1>
 
 ### AI-Powered Rights Guidance & Undertrial Support
 
