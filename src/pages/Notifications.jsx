@@ -6,6 +6,24 @@ const Notifications = () => {
   const [selectedNote, setSelectedNote] = useState(mockNotifications[0]);
   const [showAlertModal, setShowAlertModal] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [acknowledgedIds, setAcknowledgedIds] = useState([]);
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+
+  const handleAcknowledge = (note) => {
+    setAcknowledgedIds(prev => [...prev, note.id]);
+    setToastMessage(`✓ Notification "${note.title}" acknowledged and marked as read.`);
+    setTimeout(() => setToastMessage(''), 4000);
+  };
+
+  const handleAddToCalendar = (note) => {
+    setToastMessage(`📅 "${note.title}" added to your calendar. Reminder set for 1 day before.`);
+    setTimeout(() => setToastMessage(''), 4000);
+  };
+
+  const handleViewCredits = () => {
+    setToastMessage('📋 5 Days of Good Behavior Credits applied. Total: 15 Days. Next review: Sept 12, 2026.');
+    setTimeout(() => setToastMessage(''), 5000);
+  };
 
   return (
     <div className="flex flex-col gap-md">
@@ -163,23 +181,28 @@ const Notifications = () => {
                   <span className="text-xs text-muted font-bold">RECOMMENDED ACTIONS</span>
                   
                   {selectedNote.type === 'warning' && (
-                    <button className="btn btn-primary text-xs w-full">
+                    <button className="btn btn-primary text-xs w-full" onClick={() => handleAddToCalendar(selectedNote)}>
                       <Calendar size={14} className="mr-xs" /> Add to Calendar
                     </button>
                   )}
                   {selectedNote.type === 'danger' && (
-                    <button className="btn btn-primary text-xs w-full" style={{ backgroundColor: 'var(--danger-color)', color: 'white' }}>
+                    <button className="btn btn-primary text-xs w-full" style={{ backgroundColor: 'var(--danger-color)', color: 'white' }} onClick={() => setShowEmergencyModal(true)}>
                       <PhoneCall size={14} className="mr-xs" /> Call Emergency Legal Aid
                     </button>
                   )}
                   {selectedNote.type === 'success' && (
-                    <button className="btn btn-primary text-xs w-full" style={{ backgroundColor: 'var(--success-color)', color: 'white' }}>
+                    <button className="btn btn-primary text-xs w-full" style={{ backgroundColor: 'var(--success-color)', color: 'white' }} onClick={handleViewCredits}>
                       <FileText size={14} className="mr-xs" /> View Updated Credits
                     </button>
                   )}
                   
-                  <button className="btn btn-outline text-xs w-full">
-                    <UserCheck size={14} className="mr-xs" /> Acknowledge Notification
+                  <button
+                    className={`btn text-xs w-full ${acknowledgedIds.includes(selectedNote.id) ? 'btn-primary' : 'btn-outline'}`}
+                    style={acknowledgedIds.includes(selectedNote.id) ? { backgroundColor: 'var(--success-color)', color: 'white' } : {}}
+                    onClick={() => !acknowledgedIds.includes(selectedNote.id) && handleAcknowledge(selectedNote)}
+                  >
+                    <UserCheck size={14} className="mr-xs" />
+                    {acknowledgedIds.includes(selectedNote.id) ? '✓ Acknowledged' : 'Acknowledge Notification'}
                   </button>
                 </div>
               </div>
@@ -249,6 +272,44 @@ const Notifications = () => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Emergency Legal Aid Modal */}
+      {showEmergencyModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(59, 50, 40, 0.55)',
+          backdropFilter: 'blur(5px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="card p-lg" style={{ width: '420px', backgroundColor: 'var(--bg-card)' }}>
+            <h3 style={{ fontFamily: 'var(--font-family-serif)', fontSize: '1.3rem', color: 'var(--danger-color)', marginBottom: '6px', textAlign: 'center' }}>
+              🚨 Emergency Legal Aid Contacts
+            </h3>
+            <p className="text-xs text-muted text-center mb-md">Contact any of the following for immediate legal assistance.</p>
+            <div className="flex flex-col gap-sm">
+              {[
+                { name: 'National Legal Services Authority (NALSA)', number: '15100', note: 'Free legal aid — 24/7' },
+                { name: 'State DLSA Helpline', number: '044-2534-1234', note: 'District Legal Services Authority, Chennai' },
+                { name: 'Human Rights Commission', number: '14433', note: 'Rights violation complaints' },
+                { name: 'Prison Grievance Cell', number: '1800-123-4567', note: 'Toll-free — Prison-related issues' },
+              ].map((c, i) => (
+                <div key={i} style={{ backgroundColor: 'var(--bg-color)', borderRadius: 'var(--border-radius-sm)', padding: '12px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span className="font-semibold text-sm block">{c.name}</span>
+                    <span className="text-xs text-muted">{c.note}</span>
+                  </div>
+                  <span className="font-extrabold text-primary" style={{ fontSize: '1rem' }}>{c.number}</span>
+                </div>
+              ))}
+            </div>
+            <button className="btn btn-outline w-full mt-md" onClick={() => setShowEmergencyModal(false)}>Close</button>
           </div>
         </div>
       )}
