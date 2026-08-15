@@ -3,30 +3,33 @@ import { MessageSquare, X, Send, Bot, User } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 const familyAnswers = {
-  "How do I apply for parole for my family member?": "To apply for parole, a formal application must be submitted to the prison superintendent stating valid grounds. Our 'Legal Documents' section provides the required application templates.",
-  "What are the visiting hours and rules for the prison?": "Standard visiting hours are Tuesday to Sunday, 9:00 AM to 4:00 PM. Visitors must be on the approved list and bring a valid government ID.",
-  "Can I send money or items to my incarcerated family member?": "Yes, you can deposit money into the inmate's prison commissary account via money order or approved online payment portals.",
-  "How can I check the status of an ongoing appeal?": "You can check the status of an ongoing appeal through the eCourts portal using your CNR number, or consult with your designated lawyer.",
-  "What is the procedure for bail application?": "A bail application must be filed by a legal representative in the court where the trial is pending. Access the 'Connect with Lawyers' tab for immediate assistance."
+  "How do I apply for parole for my family member?": "",
+  "What are the visiting hours and rules for the prison?": "",
+  "Can I send money or items to my incarcerated family member?": "",
+  "How can I check the status of an ongoing appeal?": "",
+  "What is the procedure for bail application?": ""
 };
 
 const jailerAnswers = {
-  "How is inmate behavior credit computed?": "Behavior credits are calculated at 1 day of credit per 25 hours of work program logged, provided conduct remains satisfactory. Work logs can be updated inside the cell directory.",
-  "What are the rules for visitation schedules?": "Visitations are limited to twice a month per inmate. Requests must be approved by the warden 24 hours in advance via the Visitations Schedule section.",
-  "How do I report incident details to the government?": "Click the 'Update Government with Analysis Report' button inside the Dossiers page to sync reports directly with the Ministry portal.",
-  "Where do I log new rehabilitation program assignments?": "Go to the Inmate Dossiers tab, click 'Register New Prisoner' or select an existing inmate to inspect and assign rehabilitation logs.",
-  "How do I process release approvals?": "Go to the 'Release Approvals' section, select eligible inmates predicted by the AI model, select next steps, and click 'Submit Recommendation Report'."
+  "How is inmate behavior credit computed?": "",
+  "What are the rules for visitation schedules?": "",
+  "How do I report incident details to the government?": "",
+  "Where do I log new rehabilitation program assignments?": "",
+  "How do I process release approvals?": ""
 };
+
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 const FloatingChatbot = () => {
   const location = useLocation();
   const isJailer = location.pathname.startsWith('/jailer');
-  const mockAnswers = isJailer ? jailerAnswers : familyAnswers;
-  const presetQuestions = Object.keys(mockAnswers);
+  const presetQuestions = Object.keys(isJailer ? jailerAnswers : familyAnswers);
 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Set initial greeting dynamically
   useEffect(() => {
@@ -40,19 +43,50 @@ const FloatingChatbot = () => {
     ]);
   }, [isJailer]);
 
-  const handleSend = (text) => {
-    if (!text.trim()) return;
+  const handleSend = async (text) => {
+    if (!text.trim() || isLoading) return;
     
     setMessages(prev => [...prev, { sender: 'user', text }]);
     setInput('');
+    setIsLoading(true);
 
-    setTimeout(() => {
-      const response = mockAnswers[text] || (isJailer 
-        ? "I'm sorry, I don't have a specific answer for that administrative query. Please consult the Warden Operations Manual or dispatch an official request to the Judicial Service Board."
-        : "I'm sorry, I don't have a specific answer for that. Please consult the 'Know Your Rights' page or connect with a lawyer for detailed advice.");
-      
-      setMessages(prev => [...prev, { sender: 'bot', text: response }]);
-    }, 600);
+    const systemContext = isJailer
+      ? "You are a Prison Operations Assistant for ARGUS, an Indian judicial management system. You help wardens and jail officials with questions about inmate management, behavior credits, visitation schedules, government compliance, release approvals, and prison operations. Answer concisely and professionally."
+      : "You are a Legal Assistant for ARGUS, an Indian judicial management platform for families of undertrial prisoners. You help families understand Indian prison rules, bail procedures, parole, legal aid, inmate rights under CrPC and IPC, and how to connect with lawyers. Answer clearly and compassionately.";
+
+    try {
+      const response = await fetch(GEMINI_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [
+            { role: 'user', parts: [{ text: `${systemContext}\n\nUser question: ${text}` }] }
+          ],
+          generationConfig: { temperature: 0.7 }
+        })
+      });
+
+      const data = await response.json();
+      console.log('[Gemini API Response]', JSON.stringify(data, null, 2));
+
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (reply) {
+        setMessages(prev => [...prev, { sender: 'bot', text: reply }]);
+      } else {
+        // Surface the actual API error message so we know what's wrong
+        const errMsg = data?.error?.message || JSON.stringify(data);
+        setMessages(prev => [...prev, { sender: 'bot', text: `API Error: ${errMsg}` }]);
+      }
+    } catch (err) {
+      console.error('[Gemini Fetch Error]', err);
+      setMessages(prev => [...prev, { 
+        sender: 'bot', 
+        text: `Network error: ${err.message}`
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -75,6 +109,12 @@ const FloatingChatbot = () => {
                 <div style={{ lineHeight: '1.4' }}>{msg.text}</div>
               </div>
             ))}
+            {isLoading && (
+              <div className="chat-bubble flex gap-xs bot">
+                <div style={{ marginTop: '2px', flexShrink: 0 }}><Bot size={16} /></div>
+                <div style={{ lineHeight: '1.4', opacity: 0.7 }}>Thinking…</div>
+              </div>
+            )}
             {/* Quick Actions if only initial greeting exists */}
             {messages.length === 1 && (
               <div className="flex flex-col gap-xs mt-sm">
@@ -102,8 +142,9 @@ const FloatingChatbot = () => {
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSend(input)}
               style={{ padding: '8px 12px' }}
+              disabled={isLoading}
             />
-            <button className="btn btn-primary" onClick={() => handleSend(input)} style={{ padding: '8px 12px' }}>
+            <button className="btn btn-primary" onClick={() => handleSend(input)} style={{ padding: '8px 12px' }} disabled={isLoading}>
               <Send size={16} />
             </button>
           </div>
